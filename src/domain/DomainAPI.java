@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 //import spider.bean.Count;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 //import java.util.HashMap;
@@ -20,9 +21,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
 //import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+
 
 import utils.Log;
 import utils.mysqlUtils;
@@ -46,7 +49,6 @@ public class DomainAPI {
 		Log.log(response.getEntity());
 	}
 	
-	
 	@GET
 	@Path("/getDomain")
 	@ApiOperation(value = "获得所有领域信息", notes = "获得所有领域信息")
@@ -56,6 +58,38 @@ public class DomainAPI {
 	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
 	public static Response getDomain() {
+		Response response = null;
+		/**
+		 * 读取domain，得到所有领域名
+		 */
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "select * from " + Config.DOMAIN_TABLE;
+		List<Object> params = new ArrayList<Object>();
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			response = Response.status(200)
+					.entity(results)
+					.cookie(NewCookie.valueOf("domain=数据结构"))
+					.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = Response.status(401).entity(new error(e.toString())).build();
+		} finally {
+			mysql.closeconnection();
+		}
+		return response;
+	}
+	
+	
+	@GET
+	@Path("/getDomainManage")
+	@ApiOperation(value = "获得所有领域信息，管理系统", notes = "获得所有领域信息，管理系统")
+	@ApiResponses(value = {
+			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
+			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
+	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
+	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
+	public static Response getDomainManage() {
 		Response response = null;
 		/**
 		 * 读取domain，得到所有领域名和各领域下主题、分面、碎片、关系的数量

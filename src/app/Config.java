@@ -25,7 +25,7 @@ public class Config {
 //	public static String MYSQL_URL = "jdbc:mysql://202.117.54.39:3306/yotta?user=root&password=root&characterEncoding=UTF8";
 //	public static String MYSQL_URL = "jdbc:mysql://202.117.54.39:3306/knowledgedomain?user=root&password=root&characterEncoding=UTF8";
 //	public static String MYSQL_URL = "jdbc:mysql://123.139.159.38:9220/yotta2?user=shilei&password=shi&characterEncoding=UTF8";
-	public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta2?user=root&password=root&characterEncoding=UTF8";
+	public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta_rrq?user=root&password=root&characterEncoding=UTF8";
 
 	/**
 	 * Quora 爬虫参数  配置
