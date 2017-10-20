@@ -160,7 +160,8 @@ public class DomainTopicOldDAO {
 		 * 读取domain_topic，获得每一层知识主题
 		 */
 		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_TOPIC_RELATION_TABLE + " where ClassName=? and Parent=?";
+//		String sql = "select * from " + Config.DOMAIN_TOPIC_RELATION_TABLE + " where ClassName=? and Parent=?";
+		String sql = "select * from " + Config.DOMAIN_LAYER_RELATION_TABLE + " where ClassName=? and Parent=?";
 		List<Object> params = new ArrayList<Object>();
 		params.add(className);
 		params.add(parentTopic);
@@ -241,6 +242,7 @@ public class DomainTopicOldDAO {
 	}
 	
 	///////////////66666666666666666666666666666666//////////////////////
+	private static int topicNum = 0;
 	/**
 	 * 递归实现获取所有主题关系数据
 	 * 递归很关键，很强势
@@ -256,7 +258,8 @@ public class DomainTopicOldDAO {
 		
 //		String topicNeed = "数据结构";
 		Object data = "";
-		int parentID = DomainTopicOldDAO.getDomainTopic(className, topicNeed); // 得到父主题ID
+//		int parentID = DomainTopicOldDAO.getDomainTopic(className, topicNeed); // 得到父主题ID
+		int parentID = topicNum++; // 得到父主题ID
 		List<Topic> childrenList = new ArrayList<Topic>();
 
 		/**
@@ -270,6 +273,10 @@ public class DomainTopicOldDAO {
 			for(int i = 0; i < relaList.size(); i++){
 				Rela rela = relaList.get(i);
 				String child = rela.getChild();
+				System.out.println(rela.getParent() + "-->" + rela.getChild());
+				if (rela.getParent().equals(rela.getChild())) {
+					continue;
+				}
 				Topic topicChild = getRelationAll(className, child);
 				childrenList.add(topicChild);
 			}

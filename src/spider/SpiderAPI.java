@@ -1709,7 +1709,7 @@ public class SpiderAPI {
 				try{
 					List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 					result=mysql.returnMultipleResult(sqlImageID, paramsImageID);
-					paramsApi.add(Config.IP2+"/YOTTA_RRQ/SpiderAPI/getUnaddImage?imageID="+result.get(0).get("ImageID"));
+					paramsApi.add(Config.IP2+"/" + Config.projectName + "/SpiderAPI/getUnaddImage?imageID="+result.get(0).get("ImageID"));
 					paramsApi.add("http://image.baidu.com/" + disposition.getFileName());
 					try{
 						mysql.addDeleteModify(sqlApi, paramsApi);
@@ -2091,7 +2091,6 @@ public class SpiderAPI {
 }*/
 
 
-
-
-
+	
+	
 }

@@ -20,6 +20,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import dependency.bean.Dependency;
+import dependency.ranktext.RankText;
+import dependency.ranktext.Term;
 import utils.Log;
 import utils.mysqlUtils;
 import app.Config;
@@ -68,6 +71,10 @@ public class DependencyAPI {
 		params.add(className);
 		try {
 			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			if (results.size() == 0) { // 没有获取到主题间的认知关系
+				generateDependenceByClassName(className); // 生成主题间的认知关系
+				results = mysql.returnMultipleResult(sql, params);
+			}
 			response = Response.status(200).entity(results).build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -329,5 +336,94 @@ public class DependencyAPI {
 	}
 	
 	
+	@GET
+	@Path("/generateDependenceByClassName")
+	@ApiOperation(value = "根据领域名生成认知关系", notes = "根据领域名生成认知关系")
+	@ApiResponses(value = {
+			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
+			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
+	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
+	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
+	public static Response generateDependenceByClassName(
+			@ApiParam(value = "农业史", required = true) @QueryParam("ClassName") String ClassName) {
+		Response response = null;
+		
+		List<Term> termList = new ArrayList<Term>();
+		/**
+		 * 根据指定领域，查询主题表，获得领域下所有主题
+		 */
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "select * from " + Config.DOMAIN_TOPIC_TABLE +" where ClassName=?";
+		List<Object> params = new ArrayList<Object>();
+		params.add(ClassName);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			for (int i = 0; i < results.size(); i++) {
+				Term term = new Term();
+				term.setTermID(Integer.parseInt(results.get(i).get("TermID").toString()));
+				term.setTermName(results.get(i).get("TermName").toString());
+				termList.add(term);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
+		}
+		/**
+		 * 根据指定领域及主题，查询碎片表，获得主题的内容信息
+		 */
+		mysqlUtils mysqlAssemble = new mysqlUtils();
+		String sqlAssemble = "select * from " + Config.ASSEMBLE_FRAGMENT_TABLE +" where TermID=? and TermName=? and ClassName=?";
+		try {
+			for (int i = 0; i < termList.size(); i++) {
+				Term term = termList.get(i);
+				List<Object> paramsAssemble = new ArrayList<Object>();
+				paramsAssemble.add(term.getTermID());
+				paramsAssemble.add(term.getTermName());
+				paramsAssemble.add(ClassName);
+				List<Map<String, Object>> results = mysqlAssemble.returnMultipleResult(sqlAssemble, paramsAssemble);
+				StringBuffer termText = new StringBuffer();
+				for (int j = 0; j < results.size(); j++) {
+					termText.append(results.get(j).get("FragmentContent").toString());
+				}
+				term.setTermText(termText.toString());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysqlAssemble.closeconnection();
+		}
+		
+		/**
+		 * 根据主题内容，调用算法得到主题认知关系
+		 */
+		RankText rankText = new RankText();
+		List<Dependency> dependencies = rankText.rankText(termList, ClassName, Config.DEPENDENCEMAX);
+		/**
+		 * 指定领域，存储主题间的认知关系
+		 */
+		mysqlUtils mysqlDependency = new mysqlUtils();
+		String sqlDependency = "insert into " + Config.DEPENDENCY + "(ClassName,Start,StartID,End,EndID,Confidence) values(?,?,?,?,?,?);";
+		try {
+			for (int i = 0; i < dependencies.size(); i++) {
+				Dependency dependency = dependencies.get(i);
+				List<Object> paramsDependency = new ArrayList<Object>();
+				paramsDependency.add(ClassName);
+				paramsDependency.add(dependency.getStart());
+				paramsDependency.add(dependency.getStartID());
+				paramsDependency.add(dependency.getEnd());
+				paramsDependency.add(dependency.getEndID());
+				paramsDependency.add(dependency.getConfidence());
+				boolean success = mysqlDependency.addDeleteModify(sqlDependency, paramsDependency);
+				response = Response.status(200).entity(success).build();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = Response.status(401).entity(new error(e.toString())).build();
+		} finally {
+			mysqlDependency.closeconnection();
+		}
+		return response;
+	}
 
 }

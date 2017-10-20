@@ -1,0 +1,11 @@
+/app/
+/assemble/
+/dependency/
+/domain/
+/domainTopic/
+/facet/
+/log4j.properties
+/rdf/
+/spider/
+/test/
+/utils/

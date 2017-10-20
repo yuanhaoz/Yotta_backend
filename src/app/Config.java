@@ -11,6 +11,8 @@ import com.spreada.utils.chinese.ZHConverter;
 
 public class Config {
 	
+	public static String projectName = "Yotta";
+	
 	/**
 	 * Selenium Webdriver 配置
 	 */
@@ -22,10 +24,8 @@ public class Config {
 	/**
 	 * Mysql 配置
 	 */
-//	public static String MYSQL_URL = "jdbc:mysql://202.117.54.39:3306/yotta?user=root&password=root&characterEncoding=UTF8";
-//	public static String MYSQL_URL = "jdbc:mysql://202.117.54.39:3306/knowledgedomain?user=root&password=root&characterEncoding=UTF8";
-//	public static String MYSQL_URL = "jdbc:mysql://123.139.159.38:9220/yotta2?user=shilei&password=shi&characterEncoding=UTF8";
-	public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta_rrq?user=root&password=root&characterEncoding=UTF8";
+//	public static String MYSQL_URL = "jdbc:mysql://localhost:9220/yotta?user=root&password=root&characterEncoding=UTF8";
+	public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta_create?user=root&password=root&characterEncoding=UTF8";
 
 	/**
 	 * Quora 爬虫参数  配置
@@ -62,6 +62,7 @@ public class Config {
 	public static String DOMAIN_LAYER_TABLE = "domain_layer";
 	public static String DOMAIN_TOPIC_TABLE = "domain_topic";
 	public static String DOMAIN_TOPIC_RELATION_TABLE = "domain_topic_relation";
+	public static String DOMAIN_LAYER_RELATION_TABLE = "domain_layer_relation2";
 	public static String SPIDER_TEXT_TABLE = "spider_text";
 	public static String SPIDER_IMAGE_TABLE = "spider_image";
 	public static String ASSEMBLE_TEXT_TABLE = "assemble_text";
@@ -78,9 +79,11 @@ public class Config {
 //	public static String IP1="http://123.139.159.38";
 	public static String IP1="http://localhost";
 //	public static String IP2="http://123.139.159.38:9218";
+//	public static String IP2="http://localhost:9220";
 	public static String IP2="http://localhost:8080";
 	
 	
+	public static int DEPENDENCEMAX = 300;
 	
 	
 }
