@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,13 +29,8 @@ import app.error;
 import app.success;
 
 /**  
- * 获取认知关系的API
- * 1. 
- * 2. 
- * 3. 
- *  
+ * 知识关联挖掘：主题间认知关系
  * @author 郑元浩 
- * @date 2016年12月5日
  */
 
 @Path("/DependencyAPI")
@@ -84,43 +78,6 @@ public class DependencyAPI {
 		}
 		return response;
 	}
-	
-	
-	@GET
-	@Path("/getDependencyNum")
-	@ApiOperation(value = "获得某个领域的认知关系", notes = "输入领域名，获得某个领域的认知关系")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getDependencyNum(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className) {
-		Response response = null;
-//		List<Dependency> dependencyList = new ArrayList<Dependency>();
-		
-		/**
-		 * 读取dependency，获得认知关系
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DEPENDENCY + " where ClassName=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(className);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			Map<String, Object> res=new HashMap<String, Object>();
-			res.put("ClassName", className);
-			res.put("DependenceNum", results.size());
-			response = Response.status(200).entity(res).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		return response;
-	}
-	
 	
 	@GET
 	@Path("/getDomain")

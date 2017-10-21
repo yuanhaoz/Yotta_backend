@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,193 +19,22 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import domainTopic.bean.DomainTopic;
-import domainTopic.bean.Topic;
-import utils.Log;
 import utils.mysqlUtils;
 import app.Config;
 import app.error;
 import app.success;
+import domainTopic.bean.Topic;
 
 /**  
- * 获取领域术语和知识主题的API
- * 1. 每一层领域术语
- * 2. 每一层知识主题
- * 3. 每一层领域术语的数量
- * 4. 每一层知识主题的数量
- * 5. 所有领域术语（王瑞杰）   http://localhost:8080/YOTTA/DomainTopicAPI/getDomainLayerAll?ClassName=数据结构
- * 6. 所有知识主题（王瑞杰）	http://localhost:8080/YOTTA/DomainTopicAPI/getDomainTopicAll?ClassName=数据结构
- * 7. 所有领域术语数量
- * 8. 所有知识主题数量   
- *  
+ * 领域术语抽取
  * @author 郑元浩 
- * @date 2016年12月3日
  */
-
 @Path("/DomainTopicAPI")
 @Api(value = "DomainTopicAPI")
 public class DomainTopicAPI {
 
 	public static void main(String[] args) {
-//		Response response = getDomainLayer("数据结构", 1);
-//		Log.log(response.getEntity());
-//		response = getDomainTopic("数据结构", 2);
-//		Log.log(response.getEntity());
-//		response = getDomainTopicNum("数据结构", 3);
-//		Log.log(response.getEntity());
-//		response = getDomainLayerNum("数据结构", 3);
-//		Log.log(response.getEntity());
-//		
-//		response = getDomainLayerAll("数据结构");
-//		Log.log(response.getEntity());
-//		response = getDomainTopicAll("数据结构");
-//		Log.log(response.getEntity());
-//		response = getDomainTopicNumAll("数据结构");
-//		Log.log(response.getEntity());
-//		response = getDomainLayerNumAll("数据结构");
-//		Log.log(response.getEntity());
-//		
-//		getTopicUseless("数据结构");
-		getTopicRelation("数据结构", "数据结构");
-	}
-	
-	
-	@GET
-	@Path("/getDomainTopic")
-	@ApiOperation(value = "获得每一层知识主题的信息", notes = "输入领域名和术语层数，获得每一层知识主题的信息")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getDomainTopic(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className,
-			@DefaultValue("1") @ApiParam(value = "主题层数", required = true) @QueryParam("TermLayer") int termLayer) {
-		Response response = null;
-		/**
-		 * 读取domain_topic，获得每一层知识主题
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_TOPIC_TABLE + " where ClassName=? and TermLayer=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(className);
-		params.add(termLayer);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			response = Response.status(200).entity(results).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		return response;
-	}
-	
-	@GET
-	@Path("/getDomainLayer")
-	@ApiOperation(value = "获得每一层领域术语的信息", notes = "输入领域名和术语层数，获得每一层领域术语的信息")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getDomainLayer(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className,
-			@DefaultValue("1") @ApiParam(value = "术语层数", required = true) @QueryParam("TermLayer") int termLayer) {
-		Response response = null;
-		/**
-		 * 读取domain_layer，获得每一层领域术语
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_LAYER_TABLE + " where ClassName=? and TermLayer=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(className);
-		params.add(termLayer);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			response = Response.status(200).entity(results).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		return response;
-	}
-	
-	@GET
-	@Path("/getDomainTopicNum")
-	@ApiOperation(value = "获得每一层知识主题的的数量", notes = "输入领域名和术语层数，获得每一层知识主题的数量")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getDomainTopicNum(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className,
-			@DefaultValue("1") @ApiParam(value = "主题层数", required = true) @QueryParam("TermLayer") int termLayer) {
-		Response response = null;
-		HashMap<String, Integer> topicMap = new HashMap<String, Integer>();
 		
-		/**
-		 * 读取domain_topic，获得每一层知识主题的数量
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_TOPIC_TABLE + " where ClassName=? and TermLayer=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(className);
-		params.add(termLayer);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			String layerName = "layer" + termLayer;
-			int layerNum = results.size();
-			topicMap.put(layerName, layerNum);
-			response = Response.status(200).entity(topicMap).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		return response;
-	}
-	
-	@GET
-	@Path("/getDomainLayerNum")
-	@ApiOperation(value = "获得每一层领域术语的的数量", notes = "输入领域名和术语层数，获得每一层领域术语的数量")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getDomainLayerNum(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className,
-			@DefaultValue("1") @ApiParam(value = "术语层数", required = true) @QueryParam("TermLayer") int termLayer) {
-		Response response = null;
-		HashMap<String, Integer> topicMap = new HashMap<String, Integer>();
-		
-		/**
-		 * 读取domain_layer，获得每一层领域术语的数量
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_LAYER_TABLE + " where ClassName=? and TermLayer=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(className);
-		params.add(termLayer);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			String layerName = "layer" + termLayer;
-			int layerNum = results.size();
-			topicMap.put(layerName, layerNum);
-			response = Response.status(200).entity(topicMap).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		return response;
 	}
 	
 	@GET
@@ -238,271 +66,6 @@ public class DomainTopicAPI {
 		}
 		return response;
 	}
-	
-	@GET
-	@Path("/getDomainLayerAll")
-	@ApiOperation(value = "获得所有领域术语的信息", notes = "输入领域名和术语层数，获得所有领域术语的信息")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getDomainLayerAll(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className) {
-		Response response = null;
-		/**
-		 * 读取domain_layer，获得所有领域术语
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_LAYER_TABLE + " where ClassName=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(className);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			response = Response.status(200).entity(results).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		return response;
-	}
-	
-	@GET
-	@Path("/getDomainTopicNumAll")
-	@ApiOperation(value = "获得所有知识主题的的数量", notes = "输入领域名和术语层数，获得所有知识主题的数量")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getDomainTopicNumAll(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className) {
-		Response response = null;
-		List<HashMap<String, Integer>> topicList = new ArrayList<HashMap<String, Integer>>();
-		
-		HashMap<String, Integer> topicMap = new HashMap<String, Integer>();
-		/**
-		 * 读取domain_topic，获得第一层知识主题的数量
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_TOPIC_TABLE + " where ClassName=? and TermLayer=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(className);
-		params.add(1);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			String layerName = "layer1";
-			int layerNum = results.size();
-			topicMap.put(layerName, layerNum);
-			topicList.add(topicMap);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		
-		topicMap = new HashMap<String, Integer>();
-		/**
-		 * 读取domain_topic，获得第二层知识主题的数量
-		 */
-		mysql = new mysqlUtils();
-		sql = "select * from " + Config.DOMAIN_TOPIC_TABLE + " where ClassName=? and TermLayer=?";
-		params = new ArrayList<Object>();
-		params.add(className);
-		params.add(2);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			String layerName = "layer2";
-			int layerNum = results.size();
-			topicMap.put(layerName, layerNum);
-			topicList.add(topicMap);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		
-		topicMap = new HashMap<String, Integer>();
-		/**
-		 * 读取domain_topic，获得第三层知识主题的数量
-		 */
-		mysql = new mysqlUtils();
-		sql = "select * from " + Config.DOMAIN_TOPIC_TABLE + " where ClassName=? and TermLayer=?";
-		params = new ArrayList<Object>();
-		params.add(className);
-		params.add(3);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			String layerName = "layer3";
-			int layerNum = results.size();
-			topicMap.put(layerName, layerNum);
-			topicList.add(topicMap);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		
-		response = Response.status(200).entity(topicList).build();
-		return response;
-	}
-	
-	@GET
-	@Path("/getDomainLayerNumAll")
-	@ApiOperation(value = "获得所有领域术语的的数量", notes = "输入领域名和术语层数，获得所有领域术语的数量")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getDomainLayerNumAll(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className) {
-		Response response = null;
-		List<HashMap<String, Integer>> topicList = new ArrayList<HashMap<String, Integer>>();
-		
-		HashMap<String, Integer> topicMap = new HashMap<String, Integer>();
-		/**
-		 * 读取domain_layer，获得第一层领域术语的数量
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_LAYER_TABLE + " where ClassName=? and TermLayer=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(className);
-		params.add(1);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			String layerName = "layer1";
-			int layerNum = results.size();
-			topicMap.put(layerName, layerNum);
-			topicList.add(topicMap);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		
-		topicMap = new HashMap<String, Integer>();
-		/**
-		 * 读取domain_layer，获得第二层领域术语的数量
-		 */
-		mysql = new mysqlUtils();
-		sql = "select * from " + Config.DOMAIN_LAYER_TABLE + " where ClassName=? and TermLayer=?";
-		params = new ArrayList<Object>();
-		params.add(className);
-		params.add(2);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			String layerName = "layer2";
-			int layerNum = results.size();
-			topicMap.put(layerName, layerNum);
-			topicList.add(topicMap);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		
-		topicMap = new HashMap<String, Integer>();
-		/**
-		 * 读取domain_layer，获得第三层领域术语的数量
-		 */
-		mysql = new mysqlUtils();
-		sql = "select * from " + Config.DOMAIN_LAYER_TABLE + " where ClassName=? and TermLayer=?";
-		params = new ArrayList<Object>();
-		params.add(className);
-		params.add(3);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			String layerName = "layer3";
-			int layerNum = results.size();
-			topicMap.put(layerName, layerNum);
-			topicList.add(topicMap);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		
-		response = Response.status(200).entity(topicList).build();
-		return response;
-	}
-	
-	
-	@GET
-	@Path("/getTopicUseless")
-	@ApiOperation(value = "获得无用的知识主题", notes = "输入领域名，获得所有无用的知识主题")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getTopicUseless(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className) {
-		Response response = null;
-		/**
-		 * 获取所有知识主题和领域术语
-		 */
-		List<DomainTopic> topicList = DomainTopicOldDAO.getDomainTopics(className);
-		List<DomainTopic> termList = DomainTopicOldDAO.getDomainTerms(className);
-		List<DomainTopic> uselessTerm = new ArrayList<DomainTopic>();
-		
-		/**
-		 * 比较两个list，得出无用的节点
-		 */
-		Log.log(topicList.size());
-		Log.log(termList.size());
-		for(int i = 0; i < termList.size(); i++){
-			DomainTopic term = termList.get(i);
-			int termLayer = term.getTermLayer();
-			String termName = term.getTermName();
-			Log.log("第" + termLayer + "层，" + "主题：" + termName);
-			Boolean useless = true;
-			for (int j = 0; j < topicList.size(); j++) {
-				DomainTopic topic = topicList.get(j);
-				String topicName = topic.getTermName();
-				int topicLayer = topic.getTermLayer();
-				if (topicLayer == termLayer && topicName.equals(termName)) {
-					useless = false;
-				}
-			}
-			if (useless) {
-				Log.log("第" + termLayer + "层，" + "主题：" + termName);
-				uselessTerm.add(term);
-			}
-		}
-		
-		for(int i = 0; i < topicList.size(); i++){
-			DomainTopic topic = topicList.get(i);
-			int topicLayer = topic.getTermLayer();
-			String topicName = topic.getTermName();
-			int useless = 0;
-			for (int j = 0; j < termList.size(); j++) {
-				DomainTopic term = termList.get(j);
-				String termName = term.getTermName();
-				int termLayer = term.getTermLayer();
-				if (termLayer == topicLayer && termName.equals(topicName)) {
-					useless = useless + 1;
-				}
-			}
-			if (useless != 1) {
-				Log.log("第" + topicLayer + "层，" + "主题：" + topicName);
-				uselessTerm.add(topic);
-			}
-		}
-		
-		Log.log(uselessTerm.size());
-		response = Response.status(200).entity(uselessTerm).build();
-		return response;
-	}
-	
 	
 	@GET
 	@Path("/getTopicRelation")
@@ -677,10 +240,17 @@ public class DomainTopicAPI {
 			List<Map<String, Object>> results_firstFacet = mysql.returnMultipleResult(sql_firstFacet, params);
 			List<Map<String, Object>> results_secondFacet = mysql.returnMultipleResult(sql_secondFacet, params);
 			List<Map<String, Object>> results_thirdFacet = mysql.returnMultipleResult(sql_thirdFacet, params);
-			results.get(0).put("FacetNum", results_firstFacet.size()+results_secondFacet.size()+results_thirdFacet.size());
-			results.get(0).put("FirstLayerFacetNum", results_firstFacet.size());
-			results.get(0).put("SecondLayerFacetNum", results_secondFacet.size());
-			results.get(0).put("ThirdLayerFacetNum", results_thirdFacet.size());
+			if (results_firstFacet == null || results_secondFacet == null || results_thirdFacet == null) { // 查询不到结果
+				results.get(0).put("FacetNum", 0);
+				results.get(0).put("FirstLayerFacetNum", 0);
+				results.get(0).put("SecondLayerFacetNum", 0);
+				results.get(0).put("ThirdLayerFacetNum", 0);
+			} else {
+				results.get(0).put("FacetNum", results_firstFacet.size()+results_secondFacet.size()+results_thirdFacet.size());
+				results.get(0).put("FirstLayerFacetNum", results_firstFacet.size());
+				results.get(0).put("SecondLayerFacetNum", results_secondFacet.size());
+				results.get(0).put("ThirdLayerFacetNum", results_thirdFacet.size());
+			}
 			response = Response.status(200).entity(results).build();
 		} catch (Exception e) {
 			e.printStackTrace();

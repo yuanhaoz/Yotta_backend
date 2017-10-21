@@ -5,12 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-//import spider.bean.Count;
 
 
 import java.util.ArrayList;
 import java.util.HashMap;
-//import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,8 +22,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
-//import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
-
 
 import utils.Log;
 import utils.mysqlUtils;
@@ -34,12 +30,9 @@ import app.error;
 import app.success;
 
 /**  
- * 获取已有领域的API   
- *  
+ * 领域
  * @author 郑元浩 
- * @date 2016年12月3日
  */
-
 @Path("/DomainAPI")
 @Api(value = "DomainAPI")
 public class DomainAPI {
@@ -114,30 +107,30 @@ public class DomainAPI {
 				List<Object> params_Num = new ArrayList<Object>();
 				params_Num.add(results.get(i).get("ClassName").toString());
 				try{
-				List<Map<String, Object>> results_Topic=mysql.returnMultipleResult(sql_TopicNum, params_Num);
-				results_Num.get(i).put("TopicNum", Integer.valueOf(results_Topic.size()));
-				
-				List<Map<String, Object>> results_Facet=mysql.returnMultipleResult(sql_FacetNum, params_Num);
-				results_Num.get(i).put("FacetNum", Integer.valueOf(results_Facet.size()));
-				
-				List<Map<String, Object>> results_FirstFacet=mysql.returnMultipleResult(sql_FirstFacetNum, params_Num);
-				results_Num.get(i).put("FirstFacetNum", Integer.valueOf(results_FirstFacet.size()));
-				
-				List<Map<String, Object>> results_SecondFacet=mysql.returnMultipleResult(sql_SecondFacetNum, params_Num);
-				results_Num.get(i).put("SecondFacetNum", Integer.valueOf(results_SecondFacet.size()));
-				
-				List<Map<String, Object>> results_ThirdFacet=mysql.returnMultipleResult(sql_ThirdFacetNum, params_Num);
-				results_Num.get(i).put("ThirdFacetNum", Integer.valueOf(results_ThirdFacet.size()));
-				
-				List<Map<String, Object>> results_Fragment=mysql.returnMultipleResult(sql_FragmentNum, params_Num);
-		//		List<Map<String, Object>> results_TextFragment=mysql.returnMultipleResult(sql_TextFragmentNum, params_Num);
-		//		List<Map<String, Object>> results_ImageFragment=mysql.returnMultipleResult(sql_ImageFragmentNum, params_Num);
-				results_Num.get(i).put("FragmentNum", Integer.valueOf(results_Fragment.size()));
-//				results_Num.get(i).put("TextFragmentNum", Integer.valueOf(results_TextFragment.size()));
-//				results_Num.get(i).put("ImageFragmentNum", Integer.valueOf(results_ImageFragment.size()));
-				
-				List<Map<String, Object>> results_Dependence=mysql.returnMultipleResult(sql_DependenceNum, params_Num);
-				results_Num.get(i).put("DependenceNum", Integer.valueOf(results_Dependence.size()));
+					List<Map<String, Object>> results_Topic=mysql.returnMultipleResult(sql_TopicNum, params_Num);
+					results_Num.get(i).put("TopicNum", Integer.valueOf(results_Topic.size()));
+					
+					List<Map<String, Object>> results_Facet=mysql.returnMultipleResult(sql_FacetNum, params_Num);
+					results_Num.get(i).put("FacetNum", Integer.valueOf(results_Facet.size()));
+					
+					List<Map<String, Object>> results_FirstFacet=mysql.returnMultipleResult(sql_FirstFacetNum, params_Num);
+					results_Num.get(i).put("FirstFacetNum", Integer.valueOf(results_FirstFacet.size()));
+					
+					List<Map<String, Object>> results_SecondFacet=mysql.returnMultipleResult(sql_SecondFacetNum, params_Num);
+					results_Num.get(i).put("SecondFacetNum", Integer.valueOf(results_SecondFacet.size()));
+					
+					List<Map<String, Object>> results_ThirdFacet=mysql.returnMultipleResult(sql_ThirdFacetNum, params_Num);
+					results_Num.get(i).put("ThirdFacetNum", Integer.valueOf(results_ThirdFacet.size()));
+					
+					List<Map<String, Object>> results_Fragment=mysql.returnMultipleResult(sql_FragmentNum, params_Num);
+			//		List<Map<String, Object>> results_TextFragment=mysql.returnMultipleResult(sql_TextFragmentNum, params_Num);
+			//		List<Map<String, Object>> results_ImageFragment=mysql.returnMultipleResult(sql_ImageFragmentNum, params_Num);
+					results_Num.get(i).put("FragmentNum", Integer.valueOf(results_Fragment.size()));
+	//				results_Num.get(i).put("TextFragmentNum", Integer.valueOf(results_TextFragment.size()));
+	//				results_Num.get(i).put("ImageFragmentNum", Integer.valueOf(results_ImageFragment.size()));
+					
+					List<Map<String, Object>> results_Dependence=mysql.returnMultipleResult(sql_DependenceNum, params_Num);
+					results_Num.get(i).put("DependenceNum", Integer.valueOf(results_Dependence.size()));
 				}catch(Exception e){
 					e.printStackTrace();	
 				}
@@ -176,19 +169,16 @@ public class DomainAPI {
 			params.add(ClassName);
 			try{
 				String exist="select * from "+Config.DOMAIN_TABLE+" where ClassName=?";
-				try{
+				try {
 					List<Map<String, Object>> results = mysql.returnMultipleResult(exist, params);
 					if(results.size()==0){
 						result=mysql.addDeleteModify(sql, params);
-					}
-					else{
+					} else{
 						return Response.status(200).entity(new success(ClassName+" 已经存在！")).build();
 					}
-				}catch(Exception e){
+				} catch(Exception e) {
 					e.printStackTrace();
 				}
-				
-				
 			}
 /*			catch(MySQLIntegrityConstraintViolationException e){
 				return Response.status(200).entity(new success(ClassName+" 已经存在！")).build();
@@ -670,85 +660,6 @@ public class DomainAPI {
 					e.printStackTrace();
 				}
 			}
-			
-/*			for(int i=0;i<results_facet3Domain.size();i++){
-				List<Object> params_facet3Facet2 = new ArrayList<Object>();
-				params_facet3Facet2.add(ClassName);
-				params_facet3Facet2.add(results_facet3Domain.get(i).get("TermName"));
-				params_facet3Facet2.add(results_facet3Domain.get(i).get("FacetName"));
-				params_facet3Facet2.add(3);
-				
-				List<Object> params_frag = new ArrayList<Object>();
-				params_frag.add(ClassName);
-				params_frag.add(results_facet3Domain.get(i).get("TermName"));
-				params_frag.add(results_facet3Domain.get(i).get("FacetName"));
-				params_frag.add(results_facet3Domain.get(i).get("FacetLayer"));
-				
-				try{
-					List<Map<String, Object>> results_facet3Frag = mysql.returnMultipleResult(sql_fragment, params_frag);
-					if(results_facet3Frag.size()==0){
-						List<Map<String, Object>> results_facet3Facet2 = mysql.returnMultipleResult(sql_facetFacet, params_facet3Facet2);
-						
-						List<Object> params_facet2Facet1 = new ArrayList<Object>();
-						params_facet2Facet1.add(ClassName);
-						params_facet2Facet1.add(results_facet3Domain.get(i).get("TermName"));
-						params_facet2Facet1.add(results_facet3Facet2.get(0).get("ParentFacet"));
-						params_facet2Facet1.add(2);
-						List<Map<String, Object>> results_facet2Facet1 = mysql.returnMultipleResult(sql_facetFacet, params_facet2Facet1);
-						
-						String randomID1=mysql.getRandomString();
-						String randomID2=mysql.getRandomString();
-						String str1="<http://kf.skyclass.net/term/"+results_facet3Domain.get(i).get("TermName")+">"+" "+"<http://kf.skyclass.net/facet/"+results_facet2Facet1.get(0).get("ParentFacet")+">"+" "+randomID1;
-						String str2=randomID1+" "+"<http://kf.skyclass.net/facet/"+results_facet3Facet2.get(0).get("ParentFacet")+">"+" "+randomID2;
-						String str3=randomID2+" "+"<http://kf.skyclass.net/facet/"+results_facet3Domain.get(i).get("FacetName")+">"+" "+"\""+" "+"\"";
-						List<Object> params_convert1 = new ArrayList<Object>();
-						params_convert1.add(str1);
-						List<Object> params_convert2 = new ArrayList<Object>();
-						params_convert2.add(str2);
-						List<Object> params_convert3 = new ArrayList<Object>();
-						params_convert3.add(str3);
-						try{
-							mysql.addDeleteModify(sql_convert, params_convert1);
-							mysql.addDeleteModify(sql_convert, params_convert2);
-							mysql.addDeleteModify(sql_convert, params_convert3);
-						}catch(Exception e){
-							e.printStackTrace();
-						}
-					}
-					if(results_facet3Frag.size()!=0){
-                        List<Map<String, Object>> results_facet3Facet2 = mysql.returnMultipleResult(sql_facetFacet, params_facet3Facet2);
-						
-						List<Object> params_facet2Facet1 = new ArrayList<Object>();
-						params_facet2Facet1.add(ClassName);
-						params_facet2Facet1.add(results_facet3Domain.get(i).get("TermName"));
-						params_facet2Facet1.add(results_facet3Facet2.get(0).get("ParentFacet"));
-						params_facet2Facet1.add(2);
-						List<Map<String, Object>> results_facet2Facet1 = mysql.returnMultipleResult(sql_facetFacet, params_facet2Facet1);
-						for(int j=0;j<results_facet3Frag.size();j++){
-							String randomID1=mysql.getRandomString();
-							String randomID2=mysql.getRandomString();
-							String str1="<http://kf.skyclass.net/term/"+results_facet3Domain.get(i).get("TermName")+">"+" "+"<http://kf.skyclass.net/facet/"+results_facet2Facet1.get(0).get("ParentFacet")+">"+" "+randomID1;
-							String str2=randomID1+" "+"<http://kf.skyclass.net/facet/"+results_facet3Facet2.get(0).get("ParentFacet")+">"+" "+randomID2;
-							String str3=randomID2+" "+"<http://kf.skyclass.net/facet/"+results_facet3Domain.get(i).get("FacetName")+">"+" "+"\""+results_facet3Frag.get(j).get("FragmentContent")+"\"";
-							List<Object> params_convert1 = new ArrayList<Object>();
-							params_convert1.add(str1);
-							List<Object> params_convert2 = new ArrayList<Object>();
-							params_convert2.add(str2);
-							List<Object> params_convert3 = new ArrayList<Object>();
-							params_convert3.add(str3);
-							try{
-								mysql.addDeleteModify(sql_convert, params_convert1);
-								mysql.addDeleteModify(sql_convert, params_convert2);
-								mysql.addDeleteModify(sql_convert, params_convert3);
-							}catch(Exception e){
-								e.printStackTrace();
-							}
-						}
-					}
-				}catch (Exception e) {
-					e.printStackTrace();
-				}
-			}*/
 			
 			response = Response.status(200).entity(new success("转换成功~")).build();
 		} catch (Exception e) {

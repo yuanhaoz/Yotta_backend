@@ -3,9 +3,8 @@ package app;
 import com.spreada.utils.chinese.ZHConverter;
 
 /**
- * 
+ * 全局配置文件
  * @author 郑元浩
- * @date 2016年11月25日14:20:20
  * @description 这是一个全局的配置文件
  */
 
@@ -26,7 +25,14 @@ public class Config {
 	 */
 //	public static String MYSQL_URL = "jdbc:mysql://localhost:9220/yotta?user=root&password=root&characterEncoding=UTF8"; // 阿里云服务器
 	public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta_create?user=root&password=root&characterEncoding=UTF8"; // 本机
-
+	
+	/**
+	 * IP设置
+	 */
+	public static String IP1="http://localhost";
+//	public static String IP2="http://localhost:9218/Yotta"; // 阿里云服务器
+	public static String IP2="http://localhost:8080/Yotta";  // 本机
+	
 	/**
 	 * 数据库  配置
 	 * @author 郑元浩
@@ -35,10 +41,6 @@ public class Config {
 	public static String DOMAIN_TABLE = "domain";
 	public static String FACET_TABLE = "facet";
 	public static String FACET_RELATION_TABLE = "facet_relation";
-	
-//	public static String FACET_TABLE = "facet_ori";
-//	public static String FACET_RELATION_TABLE = "facet_relation_ori";
-	
 	public static String DOMAIN_LAYER_TABLE = "domain_layer";
 	public static String DOMAIN_TOPIC_TABLE = "domain_topic";
 	public static String DOMAIN_TOPIC_RELATION_TABLE = "domain_topic_relation";
@@ -54,13 +56,6 @@ public class Config {
 	public static String RDF_TABLE = "rdf";
 	
 	public static int CONTENTLENGTH = 0;
-	
-	public static String IP1="http://localhost";
-//	public static String IP2="http://localhost:9218/Yotta"; // 阿里云服务器
-	public static String IP2="http://localhost:8080/Yotta";  // 本机
-	
-	
 	public static int DEPENDENCEMAX = 300;
-	
 	
 }

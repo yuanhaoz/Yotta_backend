@@ -32,15 +32,8 @@ import app.error;
 import app.success;
 
 /**  
- * 获取主题分面的API
- * 1. 获取主题的每一级分面信息（没有使用该API）
- * 2. 获取多级分面之家的关系（没有使用该API）
- * 3. 获取主题下的所有分面包括分面关系，每个分面都包含一级及其二级分面信息 （任若清）
- * 4. 用于构建分面树的API（直接使用assemble表格中生成实例化主题分面树的API）（页面两个状态：装配前和装配后）
- * 5. 判断这门课程所有主题的数据是否爬取成功
- *  
+ * 分面树构建：主题分面
  * @author 郑元浩 
- * @date 2016年12月3日
  */
 
 @Path("/FacetAPI")
@@ -48,130 +41,8 @@ import app.success;
 public class FacetAPI {
 
 	public static void main(String[] args) {
-		Response response = getFacet("数据结构", "抽象资料型别", 2);
-//		Log.log(response.getEntity());
-//		response = getFacetRelation("数据结构", "抽象资料型别", 1, 2);
-//		Log.log(response.getEntity());
-		response = getFacetAllSuccess("数据结构");
-		Log.log(response.getEntity());
-	}
-	
-	
-	@GET
-	@Path("/getFacet")
-	@ApiOperation(value = "获得知识主题的一级分面信息", notes = "输入领域名和知识主题，获得知识主题的一级分面信息")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getFacet(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className,
-			@DefaultValue("抽象资料型别") @ApiParam(value = "主题名", required = true) @QueryParam("TermName") String topicName,
-			@DefaultValue("1") @ApiParam(value = "分面名", required = true) @QueryParam("FacetLayer") int facetLayer) {
-		Response response = null;
-		List<FacetSimple> facetSimpleList = new ArrayList<FacetSimple>();
 		
-		/**
-		 * 读取facet和facet_relation，获得知识点的多级分面
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select FacetName, FacetLayer from " + Config.FACET_TABLE + " where ClassName=? and TermName=? and FacetLayer=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(className);
-		params.add(topicName);
-		params.add(facetLayer);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			for (int i = 0; i < results.size(); i++) {
-				Map<String, Object> map = results.get(i);
-				String facetName = map.get("FacetName").toString();
-				FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
-				facetSimpleList.add(facetSimple);
-			}
-			response = Response.status(200).entity(facetSimpleList).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		
-		return response;
 	}
-	
-	@GET
-	@Path("/getFacetRelation")
-	@ApiOperation(value = "获得知识主题的分面关系集合信息", notes = "输入领域名/知识主题/父分面级数/子分面级数，获得知识主题的二级分面信息")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getFacetRelation(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className,
-			@DefaultValue("抽象资料型别") @ApiParam(value = "主题名", required = true) @QueryParam("TermName") String topicName,
-			@DefaultValue("1") @ApiParam(value = "父分面级数", required = true) @QueryParam("ParentLayer") int parentLayer,
-			@DefaultValue("2") @ApiParam(value = "子分面级数", required = true) @QueryParam("ChildLayer") int childLayer) {
-		Response response = null;
-		List<FacetRelation> facetRelationList = new ArrayList<FacetRelation>();
-		
-		/**
-		 * 读取facet，获得知识点的子分面分面
-		 */
-		Response responseChild = getFacet(className, topicName, childLayer);
-		if (responseChild.getStatus() == 200) {
-//			Log.log(responseChild.getStatus());
-//			Log.log(responseChild.getEntity());
-			@SuppressWarnings("unchecked")
-			List<Map<String, Object>> results = (List<Map<String, Object>>) responseChild.getEntity();
-			
-			/**
-			 * 读取facet_relation，获得知识点的子分面及其对应的父分面信息
-			 */
-			if (results.size() != 0) {
-				for (int i = 0; i < results.size(); i++) {
-					Map<String, Object> map = results.get(i);
-					String facetName = map.get("FacetName").toString();
-					mysqlUtils mysql = new mysqlUtils();
-					String sql = "select ChildFacet,ChildLayer,ParentFacet,ParentLayer from " 
-								+ Config.FACET_RELATION_TABLE + " where ClassName=? and TermName=? "
-								+ "and ChildFacet=? and ChildLayer=?";
-					List<Object> params = new ArrayList<Object>();
-					params.add(className);
-					params.add(topicName);
-					params.add(facetName);
-					params.add(childLayer);
-					try {
-						List<Map<String, Object>> resultsRelation = mysql.returnMultipleResult(sql, params);
-						/**
-						 * 一个二级标题只对应一个一级标题，因此返回记录应该为1条
-						 */
-//						Log.log(resultsRelation.size());
-						if(resultsRelation.size() == 1){
-							Map<String, Object> mapRelation = resultsRelation.get(0);
-							String parentFacet = mapRelation.get("ParentFacet").toString();
-//							Log.log(parentFacet);
-							FacetRelation facetRelation = new FacetRelation(facetName, childLayer, parentFacet, parentLayer);
-							facetRelationList.add(facetRelation);
-//							Log.log(facetRelation);
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-						response = Response.status(401).entity(new error(e.toString())).build();
-					} finally {
-						mysql.closeconnection();
-					}
-				}
-				response = Response.status(200).entity(facetRelationList).build();
-			}
-			
-		} else {
-			Log.log(topicName + " doesn't have any second facets...");
-		}
-		return response;
-	}
-	
 	
 	@GET
 	@Path("/getTopicFacet")
@@ -181,7 +52,7 @@ public class FacetAPI {
 			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
 	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getTopicFacet(
+	public static Response getTopicFacet (
 			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className,
 			@DefaultValue("抽象资料型别") @ApiParam(value = "主题名", required = true) @QueryParam("TermName") String topicName) {
 		
@@ -243,46 +114,6 @@ public class FacetAPI {
 		return response;
 	}
 	
-	
-	@GET
-	@Path("/getFacetAllSuccess")
-	@ApiOperation(value = "判断所有知识主题的分面信息是否存在", notes = "输入领域名，判断所有知识主题的分面信息是否存在")
-	@ApiResponses(value = {
-			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
-			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
-	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
-	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response getFacetAllSuccess(
-			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className) {
-		Response response = null;
-		Map<String, Object> map = new HashMap<String, Object>();
-		
-		/**
-		 * 读取facet，判断该课程的是否存在
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.FACET_TABLE + " where ClassName=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(className);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			if (results.size() != 0) {
-				map.put("status", "success");
-				response = Response.status(200).entity(map).build();
-			} else {
-				map.put("status", "fail");
-				response = Response.status(200).entity(map).build();
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		
-		return response;
-	}
 	
 	@GET
 	@Path("/getDomainTerm")
