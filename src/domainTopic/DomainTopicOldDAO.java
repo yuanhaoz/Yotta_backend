@@ -160,8 +160,7 @@ public class DomainTopicOldDAO {
 		 * 读取domain_topic，获得每一层知识主题
 		 */
 		mysqlUtils mysql = new mysqlUtils();
-//		String sql = "select * from " + Config.DOMAIN_TOPIC_RELATION_TABLE + " where ClassName=? and Parent=?";
-		String sql = "select * from " + Config.DOMAIN_LAYER_RELATION_TABLE + " where ClassName=? and Parent=?";
+		String sql = "select * from " + Config.DOMAIN_TOPIC_RELATION_TABLE + " where ClassName=? and Parent=?";
 		List<Object> params = new ArrayList<Object>();
 		params.add(className);
 		params.add(parentTopic);
@@ -274,7 +273,7 @@ public class DomainTopicOldDAO {
 				Rela rela = relaList.get(i);
 				String child = rela.getChild();
 				System.out.println(rela.getParent() + "-->" + rela.getChild());
-				if (rela.getParent().equals(rela.getChild())) {
+				if (rela.getParent().equals(rela.getChild()) || rela.getChild().equals(className)) {
 					continue;
 				}
 				Topic topicChild = getRelationAll(className, child);

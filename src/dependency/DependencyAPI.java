@@ -193,7 +193,10 @@ public class DependencyAPI {
 			@ApiResponse(code = 200, message = "正常返回结果", response =success.class) })
 	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response createDependence(@ApiParam(value = "课程名字", required = true) @QueryParam("ClassName") String ClassName,@ApiParam(value = "StartName", required = true) @QueryParam("StartName") String StartName,@ApiParam(value = "EndName", required = true) @QueryParam("EndName") String EndName) {
+	public static Response createDependence(
+			@ApiParam(value = "课程名字", required = true) @QueryParam("ClassName") String ClassName,
+			@ApiParam(value = "StartName", required = true) @QueryParam("StartName") String StartName,
+			@ApiParam(value = "EndName", required = true) @QueryParam("EndName") String EndName) {
 //		Response response = null;
 		/**
 		 * 在选定的课程下创建一个认知关系
@@ -216,45 +219,65 @@ public class DependencyAPI {
 			params_queryDependency.add(EndName);
 			List<Object> params=new ArrayList<Object>();
 			params.add(ClassName);
+			
+			// 将认知路径写到上下位关系中
+			String sqlDomainTopicRelationQuery = "select * from "+Config.DOMAIN_TOPIC_RELATION_TABLE+" where ClassName=? and Child=?";
+			List<Object> paramsDomainTopicRelationQuery=new ArrayList<Object>();
+			paramsDomainTopicRelationQuery.add(ClassName);
+			String sqlDomainTopicRelation="insert into "+Config.DOMAIN_TOPIC_RELATION_TABLE+"(Parent, Child, ClassName) values(?,?,?);";
+			List<Object> paramsDomainTopicRelation=new ArrayList<Object>();
+			
 			try{
-				List<Map<String, Object>> results_queryDepencency=mysql.returnMultipleResult(sql_queryDependency, params_queryDependency);
-				if(results_queryDepencency.size()==0){
-					try{
-				List<Map<String, Object>> results_queryTermID1=mysql.returnMultipleResult(sql_queryTermID,params_queryTermID1);
-				List<Map<String, Object>> results_queryTermID2=mysql.returnMultipleResult(sql_queryTermID,params_queryTermID2);
-				if(!StartName.equals(EndName)){
-					params.add(StartName);
-					params.add(results_queryTermID1.get(0).get("TermID").toString());
-					params.add(EndName);
-					params.add(results_queryTermID2.get(0).get("TermID").toString());
-					try{
-						result=mysql.addDeleteModify(sql, params);					
+				List<Map<String, Object>> results_queryDepencency = mysql.returnMultipleResult(sql_queryDependency, params_queryDependency);
+				if (results_queryDepencency.size() == 0) {
+					try {
+						List<Map<String, Object>> results_queryTermID1 = mysql.returnMultipleResult(sql_queryTermID, params_queryTermID1);
+						List<Map<String, Object>> results_queryTermID2 = mysql.returnMultipleResult(sql_queryTermID, params_queryTermID2);
+						if (!StartName.equals(EndName)) {
+							params.add(StartName);
+							params.add(results_queryTermID1.get(0).get("TermID").toString());
+							params.add(EndName);
+							params.add(results_queryTermID2.get(0).get("TermID").toString());
+							
+							// 将认知路径写到上下位关系中
+							paramsDomainTopicRelation.add(StartName);
+							paramsDomainTopicRelation.add(EndName);
+							paramsDomainTopicRelation.add(ClassName);
+							paramsDomainTopicRelationQuery.add(StartName);
+							try {
+								result = mysql.addDeleteModify(sql, params);
+								result = mysql.addDeleteModify(sqlDomainTopicRelation, paramsDomainTopicRelation);
+								List<Map<String, Object>> results_queryLayerRelation = mysql.returnMultipleResult(sqlDomainTopicRelationQuery, paramsDomainTopicRelationQuery);
+								if (results_queryLayerRelation.size() == 0) {
+									paramsDomainTopicRelation.clear();
+									paramsDomainTopicRelation.add(ClassName);
+									paramsDomainTopicRelation.add(StartName);
+									paramsDomainTopicRelation.add(ClassName);
+									result = mysql.addDeleteModify(sqlDomainTopicRelation, paramsDomainTopicRelation);
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						} else {
+							return Response.status(200).entity(new success("主题不能重复~")).build();
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-				catch(Exception e){
-					e.printStackTrace();
+				} else {
+					return Response.status(200).entity(new success("认知关系已存在")).build();
 				}
-				}
-				else{
-					return Response.status(200).entity(new success("主题不能重复~")).build();
-				}
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-				}
-				else{return Response.status(200).entity(new success("认知关系已存在")).build();}
-				
-				
 			}catch(Exception e){
 				e.printStackTrace();
 			}
 		finally {
 			mysql.closeconnection();
 		}
-			if (result) {
-				return Response.status(200).entity(new success("认知关系创建成功~")).build();
-			}else{
-				return Response.status(401).entity(new error("认知关系创建失败~")).build();
-			}
+		if (result) {
+			return Response.status(200).entity(new success("认知关系创建成功~")).build();
+		}else{
+			return Response.status(401).entity(new error("认知关系创建失败~")).build();
+		}
 	}catch(Exception e){
 		return Response.status(402).entity(new error(e.toString())).build();
 	}
@@ -414,6 +437,7 @@ public class DependencyAPI {
 				paramsDependency.add(dependency.getEnd());
 				paramsDependency.add(dependency.getEndID());
 				paramsDependency.add(dependency.getConfidence());
+				System.out.println(dependency.toString());
 				boolean success = mysqlDependency.addDeleteModify(sqlDependency, paramsDependency);
 				response = Response.status(200).entity(success).build();
 			}

@@ -74,6 +74,14 @@ public class Dependency {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	@Override
+	public String toString() {
+		return "Dependency [className=" + className + ", start=" + start
+				+ ", startID=" + startID + ", end=" + end + ", endID=" + endID
+				+ ", confidence=" + confidence + "]";
+	}
+	
+	
 	
 	
 }

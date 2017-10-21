@@ -6,7 +6,9 @@ package dependency.ranktext;
  * @date 2017年10月18日 下午7:43:11 
  */
 import org.slf4j.LoggerFactory;
+
 import dependency.bean.Dependency;
+
 import java.util.*;
 
 public class RankText {
@@ -52,8 +54,11 @@ public class RankText {
             TwoTuple<Term, Term> twoTuple = infoIds.get(k).getKey();
             String term1_term2 = twoTuple.first.getTermName() + "_" + twoTuple.second.getTermName();
             float dis = Float.parseFloat(infoIds.get(k).getValue().toString());
-            logger.info(term1_term2 + ": " + dis);
-
+            System.out.println(term1_term2 + ": " + dis);
+            if (new Float(dis).isNaN()) {
+				dis = 0.5f;
+			}
+            System.out.println(dis);
             Dependency dependency = new Dependency(ClassName, 
             		twoTuple.first.getTermName(), 
             		twoTuple.first.getTermID(), 
