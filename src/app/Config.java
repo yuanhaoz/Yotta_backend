@@ -23,15 +23,9 @@ public class Config {
 	/**
 	 * Mysql 配置
 	 */
-//	public static String MYSQL_URL = "jdbc:mysql://localhost:9220/yotta?user=root&password=root&characterEncoding=UTF8"; // 阿里云服务器
-	public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta_create?user=root&password=root&characterEncoding=UTF8"; // 本机
-	
-	/**
-	 * IP设置
-	 */
-	public static String IP1="http://localhost";
-//	public static String IP2="http://localhost:9218/Yotta"; // 阿里云服务器
-	public static String IP2="http://localhost:8080/Yotta";  // 本机
+	public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta_create?user=root&password=root&characterEncoding=UTF8"; // 本机：域名+http端口
+	public static String IP1="http://localhost"; // 本机：域名+apache端口
+	public static String IP2="http://localhost:8080/Yotta"; // 本机：域名+http端口
 	
 	/**
 	 * 数据库  配置
