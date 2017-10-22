@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -240,16 +241,19 @@ public class DomainTopicAPI {
 			List<Map<String, Object>> results_firstFacet = mysql.returnMultipleResult(sql_firstFacet, params);
 			List<Map<String, Object>> results_secondFacet = mysql.returnMultipleResult(sql_secondFacet, params);
 			List<Map<String, Object>> results_thirdFacet = mysql.returnMultipleResult(sql_thirdFacet, params);
-			if (results_firstFacet == null || results_secondFacet == null || results_thirdFacet == null) { // 查询不到结果
-				results.get(0).put("FacetNum", 0);
-				results.get(0).put("FirstLayerFacetNum", 0);
-				results.get(0).put("SecondLayerFacetNum", 0);
-				results.get(0).put("ThirdLayerFacetNum", 0);
-			} else {
+			if (results.size() != 0) {
 				results.get(0).put("FacetNum", results_firstFacet.size()+results_secondFacet.size()+results_thirdFacet.size());
 				results.get(0).put("FirstLayerFacetNum", results_firstFacet.size());
 				results.get(0).put("SecondLayerFacetNum", results_secondFacet.size());
 				results.get(0).put("ThirdLayerFacetNum", results_thirdFacet.size());
+			} else {
+				results = new ArrayList<Map<String,Object>>();
+				Map<String,Object> map = new HashMap<String, Object>();
+				map.put("FacetNum", 0);
+				map.put("FirstLayerFacetNum", 0);
+				map.put("SecondLayerFacetNum", 0);
+				map.put("ThirdLayerFacetNum", 0);
+				results.add(map);
 			}
 			response = Response.status(200).entity(results).build();
 		} catch (Exception e) {

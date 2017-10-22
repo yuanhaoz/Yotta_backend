@@ -65,10 +65,10 @@ public class DependencyAPI {
 		params.add(className);
 		try {
 			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			if (results.size() == 0) { // 没有获取到主题间的认知关系
-				generateDependenceByClassName(className); // 生成主题间的认知关系
-				results = mysql.returnMultipleResult(sql, params);
-			}
+//			if (results.size() == 0) { // 没有获取到主题间的认知关系
+//				generateDependenceByClassName(className); // 生成主题间的认知关系
+			results = mysql.returnMultipleResult(sql, params);
+//			}
 			response = Response.status(200).entity(results).build();
 		} catch (Exception e) {
 			e.printStackTrace();
