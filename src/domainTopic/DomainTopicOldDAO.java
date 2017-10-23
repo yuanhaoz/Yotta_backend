@@ -242,6 +242,7 @@ public class DomainTopicOldDAO {
 	
 	///////////////66666666666666666666666666666666//////////////////////
 	private static int topicNum = 0;
+	private static List<Rela> relaListRec = new ArrayList<Rela>();
 	/**
 	 * 递归实现获取所有主题关系数据
 	 * 递归很关键，很强势
@@ -273,9 +274,17 @@ public class DomainTopicOldDAO {
 				Rela rela = relaList.get(i);
 				String child = rela.getChild();
 				System.out.println(rela.getParent() + "-->" + rela.getChild());
-				if (rela.getParent().equals(rela.getChild()) || rela.getChild().equals(className)) {
+				boolean flag = true;
+				for (int j = 0; j < relaListRec.size(); j++) {
+					if (rela.getParent().equals(relaListRec.get(j).getChild()) 
+							&& rela.getChild().equals(relaListRec.get(j).getParent())) {
+						flag = false;
+					}
+				}
+				if (!flag || rela.getParent().equals(rela.getChild()) || rela.getChild().equals(className)) {
 					continue;
 				}
+				relaListRec.add(rela);
 				Topic topicChild = getRelationAll(className, child);
 				childrenList.add(topicChild);
 			}

@@ -23,9 +23,9 @@ public class Config {
 	/**
 	 * Mysql 配置
 	 */
-	public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta_create?user=root&password=root&characterEncoding=UTF8"; // 本机：域名+http端口
-	public static String IP1="http://localhost"; // 本机：域名+apache端口
-	public static String IP2="http://localhost:8080/Yotta"; // 本机：域名+http端口
+	public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta_create?user=root&password=root&characterEncoding=UTF8"; // 数据库
+	public static String IP1="http://202.117.54.39"; // 本机：域名+apache端口
+	public static String IP2="http://202.117.54.39:8080/Yotta"; // 本机：域名+http端口
 	
 	/**
 	 * 数据库  配置

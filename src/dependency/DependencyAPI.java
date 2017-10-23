@@ -250,38 +250,56 @@ public class DependencyAPI {
 			@ApiResponse(code = 200, message = "正常返回结果", response =success.class) })
 	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response deleteDependence(@ApiParam(value = "课程名字", required = true) @QueryParam("ClassName") String ClassName,@ApiParam(value = "StartID", required = true) @QueryParam("StartID") String StartID,@ApiParam(value = "EndID", required = true) @QueryParam("EndID") String EndID) {
+	public static Response deleteDependence(
+			@ApiParam(value = "课程名字", required = true) @QueryParam("ClassName") String ClassName,
+			@ApiParam(value = "StartID", required = true) @QueryParam("StartID") String StartID,
+			@ApiParam(value = "EndID", required = true) @QueryParam("EndID") String EndID) {
 //		Response response = null;
 		/**
 		 * 在选定的课程下删除一个认知关系
 		 */
 		try{
-			boolean result=false;
-			mysqlUtils mysql=new mysqlUtils();
-			String sql="delete from "+Config.DEPENDENCY+" where ClassName=? and StartID=? and EndID=?";
-			List<Object> params=new ArrayList<Object>();
+			// 删除dependency中的一条认知关系
+			boolean result = false;
+			mysqlUtils mysql = new mysqlUtils();
+			String sql = "delete from " + Config.DEPENDENCY + " where ClassName=? and StartID=? and EndID=?";
+			List<Object> params = new ArrayList<Object>();
 			params.add(ClassName);
 			params.add(StartID);
 			params.add(EndID);
+			// 删除domain_topic_relation中的一条上下位关系
+			String sqlTopic = "select * from " + Config.DEPENDENCY + " where ClassName=? and StartID=? and EndID=?";
+			List<Object> paramsTopic = new ArrayList<Object>();
+			paramsTopic.add(ClassName);
+			paramsTopic.add(StartID);
+			paramsTopic.add(EndID);
+			String sqlTopicRelation = "delete from " + Config.DOMAIN_TOPIC_RELATION_TABLE + " where ClassName=? and Parent=? and Child=?";
+			List<Object> paramsTopicRelation = new ArrayList<Object>();
 			try{
-				result=mysql.addDeleteModify(sql, params);
-			}catch(Exception e){
+				// 删除domain_topic_relation中的一条上下位关系
+				List<Map<String, Object>> results = mysql.returnMultipleResult(sqlTopic, paramsTopic);
+				paramsTopicRelation.add(ClassName);
+				paramsTopicRelation.add(results.get(0).get("Start").toString());
+				paramsTopicRelation.add(results.get(0).get("End").toString());
+				result = mysql.addDeleteModify(sqlTopicRelation, paramsTopicRelation);
+				// 删除dependency中的一条认知关系
+				result = mysql.addDeleteModify(sql, params);
+			} catch(Exception e) {
 				e.printStackTrace();
 			}
-		finally {
-			mysql.closeconnection();
-		}
+			finally {
+				mysql.closeconnection();
+			}
 			if (result) {
 				return Response.status(200).entity(new success("认知关系删除成功~")).build();
-			}else{
+			} else {
 				return Response.status(401).entity(new error("认知关系删除失败~")).build();
 			}
-	}catch(Exception e){
-		return Response.status(402).entity(new error(e.toString())).build();
+			
+		}catch(Exception e){
+			return Response.status(402).entity(new error(e.toString())).build();
+		}
 	}
-		
-	}
-	
 	
 	
 	@GET
