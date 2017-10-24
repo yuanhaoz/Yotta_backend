@@ -49,7 +49,62 @@ public class SpiderAPI {
 	public static void main(String[] args) {
 		
 	}
+	
+	
+	@GET
+	@Path("/getFragmentByTopicArray")
+	@ApiOperation(value = "根据课程名和主题数组，获取主题下的碎片数据", notes = "根据课程名和主题数组，获取主题下的碎片数据")
+	@ApiResponses(value = {
+			@ApiResponse(code = 401, message = "MySql数据库  查询失败",response = String.class),
+			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
+	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
+	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
+	public static Response getFragmentByTopicArray(
+			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("className") String className,
+			@DefaultValue("树状数组,图论术语") @ApiParam(value = "主题名字符串", required = true) @QueryParam("topicNames")
+			String topicNames) {
+		Response response = null;
+		List<Text> textList = new ArrayList<Text>();
+		String[] topicNameArray = topicNames.split(",");
 
+		/**
+		 * 循环所有主题
+		 */
+		for (int i = 0; i < topicNameArray.length; i++) {
+
+			/**
+			 * 读取spider_fragment，获得主题碎片
+			 */
+			String topicName = topicNameArray[i];
+			mysqlUtils mysql = new mysqlUtils();
+			String sql = "select * from " + Config.ASSEMBLE_FRAGMENT_TABLE + " where ClassName=? and TermName=?";
+			List<Object> params = new ArrayList<Object>();
+			params.add(className);
+			params.add(topicName);
+			try {
+				List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+				for (int j = 0; j < results.size(); j++) {
+					Map<String, Object> map = results.get(j);
+					int FragmentID = Integer.parseInt(map.get("FragmentID").toString());
+					String FragmentContent = map.get("FragmentContent").toString();
+					String FragmentScratchTime = map.get("FragmentScratchTime").toString();
+					int TermID = Integer.parseInt(map.get("TermID").toString());
+					String TermName = map.get("TermName").toString();
+					String ClassName = map.get("ClassName").toString();
+					Text text = new Text(FragmentID, FragmentContent, "", "", FragmentScratchTime, TermID, TermName, ClassName);
+					textList.add(text);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				response = Response.status(401).entity(new error(e.toString())).build();
+			} finally {
+				mysql.closeconnection();
+			}
+		}
+		response = Response.status(200).entity(textList).build();
+
+		return response;
+	}
 
 	@GET
 	@Path("/getTextByDomain")
