@@ -281,7 +281,9 @@ public class DomainTopicOldDAO {
 						flag = false;
 					}
 				}
-				if (!flag || rela.getParent().equals(rela.getChild()) || rela.getChild().equals(className)) {
+				if (!flag || rela.getParent().equals(rela.getChild()) 
+						|| rela.getChild().equals(className)
+						|| rela.getParent().toLowerCase().equals(rela.getChild().toLowerCase())) {
 					continue;
 				}
 				relaListRec.add(rela);
