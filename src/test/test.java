@@ -1,7 +1,16 @@
 package test;
 
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -12,12 +21,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import utils.mysqlUtils;
 import app.error;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 @Path("/test")
 @Api(value = "test")
@@ -25,10 +30,11 @@ public class test {
 
 	public static void main(String[] args) {
 //		System.out.println(get("1").getEntity().toString());
-		String conAll = "hello";
-		String con = "world";
-		conAll += "\n" + con;
-		System.out.println(conAll);
+//		String conAll = "hello";
+//		String con = "world";
+//		conAll += "\n" + con;
+//		System.out.println(conAll);
+		search("电脑安全");
 	}
 
 	@GET
@@ -55,6 +61,33 @@ public class test {
 			}
 
 	}
+	
+	public static Response search(String domain) {
+		Response response = null;
+		/**
+		 * 读取domain，得到所有领域名
+		 */
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "SELECT DISTINCT Count(spider_text.FragmentID) as text_count FROM spider_text ,"
+				+ "domain_topic WHERE domain_topic.TermName = spider_text.TermName AND "
+				+ "spider_text.ClassName = domain_topic.ClassName AND spider_text.ClassName = ?";
+		List<Object> params = new ArrayList<Object>();
+		params.add(domain);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			System.out.println(results);
+			response = Response.status(200)
+					.entity(results)
+					.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = Response.status(401).entity(new error(e.toString())).build();
+		} finally {
+			mysql.closeconnection();
+		}
+		return response;
+	}
+	
 
 	
 
