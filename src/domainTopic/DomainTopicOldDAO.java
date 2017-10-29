@@ -7,6 +7,7 @@ import java.util.Map;
 import domainTopic.bean.DomainTopic;
 import domainTopic.bean.Rela;
 import domainTopic.bean.Topic;
+import utils.Log;
 import utils.mysqlUtils;
 import app.Config;
 
@@ -273,7 +274,7 @@ public class DomainTopicOldDAO {
 			for(int i = 0; i < relaList.size(); i++){
 				Rela rela = relaList.get(i);
 				String child = rela.getChild();
-				System.out.println(rela.getParent() + "-->" + rela.getChild());
+				Log.log(rela.getParent() + "-->" + rela.getChild());
 				boolean flag = true;
 				for (int j = 0; j < relaListRec.size(); j++) {
 					if (rela.getParent().equals(relaListRec.get(j).getChild()) 

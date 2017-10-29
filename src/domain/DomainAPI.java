@@ -84,67 +84,221 @@ public class DomainAPI {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
 	public static Response getDomainManage() {
 		Response response = null;
-		/**
-		 * 读取domain，得到所有领域名和各领域下主题、分面、碎片、关系的数量
-		 */
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_TABLE;
-		String sql_TopicNum = "select * from " + Config.DOMAIN_TOPIC_TABLE+" where ClassName=?";
-		String sql_FacetNum = "select * from " + Config.FACET_TABLE+" where ClassName=?";
-		String sql_FragmentNum = "select * from " + Config.ASSEMBLE_FRAGMENT_TABLE+" where ClassName=?";
-//		String sql_TextFragmentNum = "select * from " + Config.ASSEMBLE_TEXT_TABLE+" where ClassName=?";
-//		String sql_ImageFragmentNum = "select * from " + Config.ASSEMBLE_IMAGE_TABLE+" where ClassName=?";
-		String sql_DependenceNum = "select * from " + Config.DEPENDENCY+" where ClassName=?";
-		String sql_FirstFacetNum = "select * from " + Config.FACET_TABLE+" where ClassName=? and FacetLayer='1'";
-		String sql_SecondFacetNum = "select * from " + Config.FACET_TABLE+" where ClassName=? and FacetLayer='2'";
-		String sql_ThirdFacetNum = "select * from " + Config.FACET_TABLE+" where ClassName=? and FacetLayer='3'";
-		List<Object> params = new ArrayList<Object>();
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			
-			List<Map<String, Object>> results_Num = results;
-			for(int i=0;i<results.size();i++){
-				List<Object> params_Num = new ArrayList<Object>();
-				params_Num.add(results.get(i).get("ClassName").toString());
-				try{
-					List<Map<String, Object>> results_Topic=mysql.returnMultipleResult(sql_TopicNum, params_Num);
-					results_Num.get(i).put("TopicNum", Integer.valueOf(results_Topic.size()));
-					
-					List<Map<String, Object>> results_Facet=mysql.returnMultipleResult(sql_FacetNum, params_Num);
-					results_Num.get(i).put("FacetNum", Integer.valueOf(results_Facet.size()));
-					
-					List<Map<String, Object>> results_FirstFacet=mysql.returnMultipleResult(sql_FirstFacetNum, params_Num);
-					results_Num.get(i).put("FirstFacetNum", Integer.valueOf(results_FirstFacet.size()));
-					
-					List<Map<String, Object>> results_SecondFacet=mysql.returnMultipleResult(sql_SecondFacetNum, params_Num);
-					results_Num.get(i).put("SecondFacetNum", Integer.valueOf(results_SecondFacet.size()));
-					
-					List<Map<String, Object>> results_ThirdFacet=mysql.returnMultipleResult(sql_ThirdFacetNum, params_Num);
-					results_Num.get(i).put("ThirdFacetNum", Integer.valueOf(results_ThirdFacet.size()));
-					
-					List<Map<String, Object>> results_Fragment=mysql.returnMultipleResult(sql_FragmentNum, params_Num);
-			//		List<Map<String, Object>> results_TextFragment=mysql.returnMultipleResult(sql_TextFragmentNum, params_Num);
-			//		List<Map<String, Object>> results_ImageFragment=mysql.returnMultipleResult(sql_ImageFragmentNum, params_Num);
-					results_Num.get(i).put("FragmentNum", Integer.valueOf(results_Fragment.size()));
-	//				results_Num.get(i).put("TextFragmentNum", Integer.valueOf(results_TextFragment.size()));
-	//				results_Num.get(i).put("ImageFragmentNum", Integer.valueOf(results_ImageFragment.size()));
-					
-					List<Map<String, Object>> results_Dependence=mysql.returnMultipleResult(sql_DependenceNum, params_Num);
-					results_Num.get(i).put("DependenceNum", Integer.valueOf(results_Dependence.size()));
-				}catch(Exception e){
-					e.printStackTrace();	
-				}
-			}
-			results=results_Num;
-			
-			response = Response.status(200).entity(results).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = Response.status(401).entity(new error(e.toString())).build();
-		} finally {
-			mysql.closeconnection();
-		}
-		return response;
+//      mysqlUtils mysql = new mysqlUtils();
+//      String sql = "select * from " + Config.DOMAIN_TABLE;
+//      String sql_TopicNum = "SELECT " +
+//              "Count(dt.TermID) AS TopicNum, d.ClassName AS ClassName " +
+//              "FROM " + Config.DOMAIN_TABLE + " AS d , " + Config.DOMAIN_TOPIC_TABLE + " AS dt " +
+//              "WHERE " +
+//              "d.ClassName = dt.ClassName " +
+//              "GROUP BY " +
+//              "dt.ClassName";
+//      String sql_FacetNum = "SELECT " +
+//              "Count(f.FacetName) AS FacetNum, d.ClassName AS ClassName " +
+//              "FROM " + Config.DOMAIN_TABLE + " AS d , " + Config.FACET_TABLE + " AS f " +
+//              "WHERE " +
+//              "d.ClassName = f.ClassName " +
+//              "GROUP BY " +
+//              "d.ClassName";
+//      String sql_FragmentNum = "SELECT " +
+//              "Count(af.FragmentID) AS FragmentNum, d.ClassName AS ClassName " +
+//              "FROM " + Config.DOMAIN_TABLE + " AS d ," + Config.ASSEMBLE_FRAGMENT_TABLE + " AS af " +
+//              "WHERE " +
+//              "d.ClassName = af.ClassName " +
+//              "GROUP BY " +
+//              "d.ClassName";
+//      String sql_DependenceNum = "SELECT " +
+//              "Count(de.`Start`) AS DependenceNum, d.ClassName AS ClassName " +
+//              "FROM " + Config.DOMAIN_TABLE + " AS d ," + Config.DEPENDENCY + " AS de " +
+//              "WHERE " +
+//              "d.ClassName = de.ClassName " +
+//              "GROUP BY " +
+//              "d.ClassName";
+//      String sql_FirstFacetNum = "SELECT " +
+//              "Count(f.TermName) AS FirstFacetNum, d.ClassName AS ClassName " +
+//              "FROM " + Config.DOMAIN_TABLE + " AS d , " + Config.FACET_TABLE + " AS f " +
+//              "WHERE " +
+//              "d.ClassName = f.ClassName AND " +
+//              "f.FacetLayer = '1' " +
+//              "GROUP BY " +
+//              "d.ClassName";
+//      String sql_SecondFacetNum = "SELECT " +
+//              "Count(f.TermName) AS SecondFacetNum, d.ClassName AS ClassName " +
+//              "FROM " + Config.DOMAIN_TABLE + " AS d , " + Config.FACET_TABLE + " AS f " +
+//              "WHERE " +
+//              "d.ClassName = f.ClassName AND " +
+//              "f.FacetLayer = '2' " +
+//              "GROUP BY " +
+//              "d.ClassName";
+//      String sql_ThirdFacetNum = "SELECT " +
+//              "Count(f.TermName) AS ThirdFacetNum, d.ClassName AS ClassName " +
+//              "FROM " + Config.DOMAIN_TABLE + " AS d , " + Config.FACET_TABLE + " AS f " +
+//              "WHERE " +
+//              "d.ClassName = f.ClassName AND " +
+//              "f.FacetLayer = '3' " +
+//              "GROUP BY " +
+//              "d.ClassName";
+//      try {
+//          List<Map<String, Object>> results = new ArrayList<>();
+//          List<Object> params_Num = new ArrayList<Object>();
+//          try {
+//              List<Map<String, Object>> resultsDomain = mysql.returnMultipleResult(sql, params_Num);
+//              for (int i = 0; i < resultsDomain.size(); i++) {
+//                  Map<String, Object> map = new LinkedHashMap<>();
+//                  String classID = resultsDomain.get(i).get("ClassID").toString();
+//                  String className = resultsDomain.get(i).get("ClassName").toString();
+//                  map.put("ClassID", classID);
+//                  map.put("ClassName", className);
+//                  // 主题
+//                  List<Map<String, Object>> results_Topic = mysql.returnMultipleResult(sql_TopicNum, params_Num);
+//                  boolean flag = false;
+//                  for (int j = 0; j < results_Topic.size(); j++) {
+//                      if (className.equals(results_Topic.get(j).get("ClassName"))) {
+//                          flag = true;
+//                          map.put("TopicNum", results_Topic.get(j).get("TopicNum"));
+//                      }
+//                  }
+//                  if (!flag) {
+//                      map.put("TopicNum", 0);
+//                  }
+//                  // 分面
+//                  List<Map<String, Object>> results_Facet = mysql.returnMultipleResult(sql_FacetNum, params_Num);
+//                  flag = false;
+//                  for (int j = 0; j < results_Facet.size(); j++) {
+//                      if (className.equals(results_Facet.get(j).get("ClassName"))) {
+//                          flag = true;
+//                          map.put("FacetNum", results_Facet.get(j).get("FacetNum"));
+//                      }
+//                  }
+//                  if (!flag) {
+//                      map.put("FacetNum", 0);
+//                  }
+//                  // 一级分面
+//                  List<Map<String, Object>> results_FirstFacet = mysql.returnMultipleResult(sql_FirstFacetNum, params_Num);
+//                  flag = false;
+//                  for (int j = 0; j < results_FirstFacet.size(); j++) {
+//                      if (className.equals(results_FirstFacet.get(j).get("ClassName"))) {
+//                          flag = true;
+//                          map.put("FirstFacetNum", results_FirstFacet.get(j).get("FirstFacetNum"));
+//                      }
+//                  }
+//                  if (!flag) {
+//                      map.put("FirstFacetNum", 0);
+//                  }
+//                  // 二级分面
+//                  List<Map<String, Object>> results_SecondFacet = mysql.returnMultipleResult(sql_SecondFacetNum, params_Num);
+//                  flag = false;
+//                  for (int j = 0; j < results_SecondFacet.size(); j++) {
+//                      if (className.equals(results_SecondFacet.get(j).get("ClassName"))) {
+//                          flag = true;
+//                          map.put("SecondFacetNum", results_SecondFacet.get(j).get("SecondFacetNum"));
+//                      }
+//                  }
+//                  if (!flag) {
+//                      map.put("SecondFacetNum", 0);
+//                  }
+//                  // 三级分面
+//                  List<Map<String, Object>> results_ThirdFacet = mysql.returnMultipleResult(sql_ThirdFacetNum, params_Num);
+//                  flag = false;
+//                  for (int j = 0; j < results_ThirdFacet.size(); j++) {
+//                      if (className.equals(results_ThirdFacet.get(j).get("ClassName"))) {
+//                          flag = true;
+//                          map.put("ThirdFacetNum", results_ThirdFacet.get(j).get("ThirdFacetNum"));
+//                      }
+//                  }
+//                  if (!flag) {
+//                      map.put("ThirdFacetNum", 0);
+//                  }
+//                  // 碎片数量
+//                  List<Map<String, Object>> results_Fragment = mysql.returnMultipleResult(sql_FragmentNum, params_Num);
+//                  flag = false;
+//                  for (int j = 0; j < results_Fragment.size(); j++) {
+//                      if (className.equals(results_Fragment.get(j).get("ClassName"))) {
+//                          flag = true;
+//                          map.put("FragmentNum", results_Fragment.get(j).get("FragmentNum"));
+//                      }
+//                  }
+//                  if (!flag) {
+//                      map.put("FragmentNum", 0);
+//                  }
+//                  // 依赖关系
+//                  List<Map<String, Object>> results_dependence = mysql.returnMultipleResult(sql_DependenceNum, params_Num);
+//                  flag = false;
+//                  for (int j = 0; j < results_dependence.size(); j++) {
+//                      if (className.equals(results_dependence.get(j).get("ClassName"))) {
+//                          flag = true;
+//                          map.put("DependenceNum", results_dependence.get(j).get("DependenceNum"));
+//                      }
+//                  }
+//                  if (!flag) {
+//                      map.put("DependenceNum", 0);
+//                  }
+//              }
+//          } catch (Exception e) {
+//              e.printStackTrace();
+//          }
+//          response = Response.status(200).entity(results).build();
+//      } catch (Exception e) {
+//          e.printStackTrace();
+//          response = Response.status(401).entity(new error(e.toString())).build();
+//      } finally {
+//          mysql.closeconnection();
+//      }
+      /**
+       * 读取domain，得到所有领域名和各领域下主题、分面、碎片、关系的数量
+       */
+      mysqlUtils mysql = new mysqlUtils();
+      String sql = "select * from " + Config.DOMAIN_TABLE;
+      String sql_TopicNum = "select count(TermID) as TopicNum from " + Config.DOMAIN_TOPIC_TABLE + " where ClassName=?";
+      String sql_FacetNum = "select count(FacetName) as FacetNum from " + Config.FACET_TABLE + " where ClassName=?";
+      String sql_FragmentNum = "select count(FragmentID) as FragmentNum from " + Config.ASSEMBLE_FRAGMENT_TABLE + " where ClassName=?";
+      String sql_DependenceNum = "select count(Start) as DependenceNum from " + Config.DEPENDENCY + " where ClassName=?";
+      String sql_FirstFacetNum = "select count(FacetName) as FirstFacetNum from " + Config.FACET_TABLE + " where ClassName=? and FacetLayer='1'";
+      String sql_SecondFacetNum = "select count(FacetName) as SecondFacetNum from " + Config.FACET_TABLE + " where ClassName=? and FacetLayer='2'";
+      String sql_ThirdFacetNum = "select count(FacetName) as ThirdFacetNum from " + Config.FACET_TABLE + " where ClassName=? and FacetLayer='3'";
+      List<Object> params = new ArrayList<Object>();
+      try {
+          List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+
+          List<Map<String, Object>> results_Num = results;
+          for (int i = 0; i < results.size(); i++) {
+              List<Object> params_Num = new ArrayList<Object>();
+              params_Num.add(results.get(i).get("ClassName").toString());
+              try {
+                  List<Map<String, Object>> results_Topic = mysql.returnMultipleResult(sql_TopicNum, params_Num);
+                  results_Num.get(i).put("TopicNum", Integer.valueOf(results_Topic.get(0).get("TopicNum").toString()));
+
+                  List<Map<String, Object>> results_Facet = mysql.returnMultipleResult(sql_FacetNum, params_Num);
+                  results_Num.get(i).put("FacetNum", Integer.valueOf(results_Facet.get(0).get("FacetNum").toString()));
+
+                  List<Map<String, Object>> results_FirstFacet = mysql.returnMultipleResult(sql_FirstFacetNum, params_Num);
+                  results_Num.get(i).put("FirstFacetNum", Integer.valueOf(results_FirstFacet.get(0).get("FirstFacetNum").toString()));
+
+                  List<Map<String, Object>> results_SecondFacet = mysql.returnMultipleResult(sql_SecondFacetNum, params_Num);
+                  results_Num.get(i).put("SecondFacetNum", Integer.valueOf(results_SecondFacet.get(0).get("SecondFacetNum").toString()));
+
+                  List<Map<String, Object>> results_ThirdFacet = mysql.returnMultipleResult(sql_ThirdFacetNum, params_Num);
+                  results_Num.get(i).put("ThirdFacetNum", Integer.valueOf(results_ThirdFacet.get(0).get("ThirdFacetNum").toString()));
+
+                  List<Map<String, Object>> results_Fragment = mysql.returnMultipleResult(sql_FragmentNum, params_Num);
+                  results_Num.get(i).put("FragmentNum", Integer.valueOf(results_Fragment.get(0).get("FragmentNum").toString()));
+
+                  List<Map<String, Object>> results_Dependence = mysql.returnMultipleResult(sql_DependenceNum, params_Num);
+                  results_Num.get(i).put("DependenceNum", Integer.valueOf(results_Dependence.get(0).get("DependenceNum").toString()));
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
+          }
+          results = results_Num;
+
+          response = Response.status(200).entity(results).build();
+      } catch (Exception e) {
+          e.printStackTrace();
+          response = Response.status(401).entity(new error(e.toString())).build();
+      } finally {
+          mysql.closeconnection();
+      }
+      return response;
 	}
 	
 	

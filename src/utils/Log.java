@@ -10,8 +10,8 @@ import java.util.List;
  */
 public class Log {
 	
-//	private final static Boolean flag = false;
-	private final static Boolean flag = true;
+	private final static Boolean flag = false;
+//	private final static Boolean flag = true; 	
 
 	public static void main(String[] args) {
 		log("test print...");
