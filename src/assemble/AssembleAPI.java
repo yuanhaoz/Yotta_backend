@@ -309,7 +309,7 @@ public class AssembleAPI {
 						branchSimpleList.add(branchSimple);
 						
 					} else {
-						Log.log(className + "--->" + topicName + "--->" + secondFacet.getFacetName() + ", 该二级分面存在三级分面，三级分面待开发");
+//						Log.log(className + "--->" + topicName + "--->" + secondFacet.getFacetName() + ", 该二级分面存在三级分面，三级分面待开发");
 						/**
 						 * 存在三级分面，将三级分面的碎片内容全部挂载到二级分面上去
 						 */

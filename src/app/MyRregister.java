@@ -37,10 +37,10 @@ public class MyRregister extends ResourceConfig {
 //		beanConfig.setHost("123.139.159.38:9218");  // 需要修改
 //		beanConfig.setHost("202.117.54.39:8080");  // 需要修改
 		beanConfig.setHost("localhost:8080");
-		beanConfig.setBasePath("/YOTTA_RRQ");  // 需要修改
+		beanConfig.setBasePath("/Yotta");  // 需要修改
 		beanConfig.setLicense(getApplicationName());
 		beanConfig.setContact("郑元浩       Email：994303805@qq.com");
-		beanConfig.setResourcePackage("domain,domainTopic,facet,spider,assemble,dependency");  // 需要修改
+		beanConfig.setResourcePackage("domain,domainTopic,facet,spider,assemble,dependency,test");  // 需要修改
 		beanConfig.setScan(true);
 		//swagger  注册服务
         Set<Class<?>> resources = new HashSet<>();  

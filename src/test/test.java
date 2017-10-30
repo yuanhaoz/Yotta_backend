@@ -14,15 +14,19 @@ import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import utils.Log;
 import utils.mysqlUtils;
 import app.error;
+import app.success;
 
 @Path("/test")
 @Api(value = "test")
@@ -88,7 +92,23 @@ public class test {
 		return response;
 	}
 	
-
+	@POST
+	@Path("/testPost")
+	@ApiOperation(value = "测试上传图片功能", notes = "测试上传图片功能")
+	@ApiResponses(value = {
+			@ApiResponse(code = 402, message = "数据库错误",response=error.class),
+			@ApiResponse(code = 200, message = "正常返回结果", response =success.class) })
+	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
+	@Produces(MediaType.TEXT_PLAIN + ";charset=" + "UTF-8")
+	public static Response testPost (@FormParam("content") String content) {
+		Response response = null;
+		Log.log(content);
+		if (content != null && !content.equals("")) {
+			response = Response.status(200).entity(content).build();
+		} else {
+			response = Response.status(200).entity("000").build();
+		}
+		return response;
+	}
 	
-
 }

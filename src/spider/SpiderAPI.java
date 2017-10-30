@@ -16,6 +16,7 @@ import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -737,7 +738,7 @@ public class SpiderAPI {
 		return response;
 	}
 	
-	@GET
+	@POST
 	@Path("/createFragment")
 	@ApiOperation(value = "创建碎片", notes = "创建碎片")
 	@ApiResponses(value = {
@@ -745,7 +746,9 @@ public class SpiderAPI {
 			@ApiResponse(code = 200, message = "正常返回结果", response =success.class) })
 	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response createFragment(@ApiParam(value = "FragmentContent", required = true) @QueryParam("FragmentContent") String FragmentContent) {
+	public static Response createFragment(
+			@FormParam("FragmentContent") String FragmentContent
+			) {
 //		Response response = null;
 		/**
 		 * 创建碎片
@@ -754,28 +757,27 @@ public class SpiderAPI {
 			boolean result=false;
 			mysqlUtils mysql=new mysqlUtils();
 			String sql="insert into "+Config.FRAGMENT+"(FragmentContent,FragmentScratchTime) values(?,?);";
-			Date d=new Date();
+			Date d = new Date();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			List<Object> params=new ArrayList<Object>();
 			params.add(FragmentContent);
 			params.add(sdf.format(d));
-			try{
+			try {
 				result=mysql.addDeleteModify(sql, params);
-			}catch(Exception e){
+			} catch(Exception e) {
 				e.printStackTrace();
+				return Response.status(401).entity(new error(e.getMessage())).build();
+			} finally {
+				mysql.closeconnection();
 			}
-		finally {
-			mysql.closeconnection();
-		}
 			if (result) {
 				return Response.status(200).entity(new success("碎片创建成功~")).build();
-			}else{
+			} else {
 				return Response.status(401).entity(new error("碎片创建失败~")).build();
 			}
-	}catch(Exception e){
-		return Response.status(402).entity(new error(e.toString())).build();
-	}
-		
+		}catch(Exception e){
+			return Response.status(402).entity(new error(e.toString())).build();
+		}
 	}
 	
 	@GET
@@ -917,7 +919,13 @@ public class SpiderAPI {
 			@ApiResponse(code = 200, message = "正常返回结果", response =success.class) })
 	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
-	public static Response addFacetFragment(@ApiParam(value = "课程名字", required = true) @QueryParam("ClassName") String ClassName,@ApiParam(value = "主题名字", required = true) @QueryParam("TermName") String TermName,@ApiParam(value = "分面名字", required = true) @QueryParam("FacetName") String FacetName,@ApiParam(value = "分面级数", required = true) @QueryParam("FacetLayer") String FacetLayer,@ApiParam(value = "FragmentID", required = true) @QueryParam("FragmentID") String FragmentID) {
+	public static Response addFacetFragment(
+			@ApiParam(value = "课程名字", required = true) @QueryParam("ClassName") String ClassName,
+			@ApiParam(value = "主题名字", required = true) @QueryParam("TermName") String TermName,
+			@ApiParam(value = "分面名字", required = true) @QueryParam("FacetName") String FacetName,
+			@ApiParam(value = "分面级数", required = true) @QueryParam("FacetLayer") String FacetLayer,
+			@ApiParam(value = "FragmentID", required = true) @QueryParam("FragmentID") String FragmentID
+			) {
 //		Response response = null;
 		/**
 		 * 向分面添加碎片
