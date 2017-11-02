@@ -32,6 +32,8 @@ public class Config {
 	 * @author 郑元浩
 	 */
 	public static ZHConverter converter = ZHConverter.getInstance(ZHConverter.SIMPLIFIED);// 转化为简体中文
+	public static String USER_INFO = "user_info";
+	public static String USER_LOG = "user_log";
 	public static String DOMAIN_TABLE = "domain";
 	public static String FACET_TABLE = "facet";
 	public static String FACET_RELATION_TABLE = "facet_relation";

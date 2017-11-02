@@ -82,45 +82,7 @@ public class mysqlUtils
         result = pStatement.executeUpdate();//执行成功将返回大于0的数
         return  result>0 ? true : false;
     }
-   /**
-    * 数据库查询操作，返回单条记录
-    * @param sql语句
-    * @param 传入的占位符
-    * @return 返回Map集合类型，包含查询的结果
-    * @throws SQLException
-    */
-    public Map<String,Object> returnSimpleResult(String sql,List<Object>params) throws SQLException
-    {
-        Map<String, Object> map = new HashMap<String, Object>();
-        int index = 1;//从1开始设置占位符
-        pStatement = connection.prepareStatement(sql);
-        if(params != null && !params.isEmpty()) /*判断参数是否为空*/
-        { 
-            for(int i = 0;i<params.size();i++) /*循环填充占位符*/
-            {
-                pStatement.setObject(index++, params.get(i));
-            }
-        }
-//        System.out.println(pStatement.toString());
-        resultset = pStatement.executeQuery(sql);
-        /*  将查询结果封装到map集合*/
-        ResultSetMetaData metaDate = resultset.getMetaData();//获取resultSet列的信息
-        int columnLength = metaDate.getColumnCount();//获得列的长度
-        while(resultset.next())
-        {
-            for(int i = 0;i<columnLength;i++)
-            {
-                String metaDateKey = metaDate.getColumnName(i+1);//获得列名
-                Object resultsetValue = resultset.getObject(metaDateKey);//通过列名获得值
-                if(resultsetValue == null)
-                {
-                    resultsetValue = "";//转成String类型
-                }
-                map.put(metaDateKey, resultsetValue);//添加到map集合（以上代码是为了将从数据库返回的值转换成map的key和value）
-            }
-        }
-        return map;
-    }
+  
     /**
      * 查询数据库，返回多条记录
      * @param sql语句

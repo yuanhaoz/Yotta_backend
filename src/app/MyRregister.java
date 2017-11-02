@@ -12,6 +12,8 @@ import io.swagger.jaxrs.config.BeanConfig;
 import java.util.HashSet;
 import java.util.Set;
 
+import login.LoginAPI;
+
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -68,6 +70,12 @@ public class MyRregister extends ResourceConfig {
     	register(DependencyAPI.class);
     	register(MultiPartFeature.class);
     	register(JacksonJsonProvider.class);
+    	
+    	
+    	/**
+    	 * 用戶登陸
+    	 */
+    	register(LoginAPI.class);
 //    	register(JacksonFeature.class); 
 
     	
