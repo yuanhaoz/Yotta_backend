@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jsoup.Jsoup;
+
 import utils.mysqlUtils;
 import app.Config;
 import assemble.bean.Leaf;
@@ -21,10 +23,52 @@ public class AssembleDAO {
 	
 	/**
 	 * 读取指定领域名、主题名、分面名下的碎片集合作为实例化主题分面树的树叶
-	 * @param className
-	 * @param topicName
-	 * @param facetName
-	 * @return
+	 * 碎片的内容没有html标签，为纯文本
+	 * @param className 课程名
+	 * @param topicName 主题名
+	 * @param facetName 分面名
+	 * @return 叶子
+	 */
+	public static List<Leaf> getFragmentByFacetPure(String className, String topicName, String facetName) {
+		List<Leaf> leafList = new ArrayList<Leaf>();
+		
+		/**
+		 * 读取assemble_fragment，获得知识点某分面下的文本碎片
+		 */
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "select * from " + Config.ASSEMBLE_FRAGMENT_TABLE + " where ClassName=? and TermName=? and FacetName=?";
+		List<Object> params = new ArrayList<Object>();
+		params.add(className);
+		params.add(topicName);
+		params.add(facetName);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			for (int i = 0; i < results.size(); i++) {
+				Map<String, Object> map = results.get(i);
+				String url = "";
+				String content = map.get("FragmentContent").toString();
+				content = Jsoup.parse(content).body().text(); // 解析碎片内容为没有标签的数据
+				String scratchTime = map.get("FragmentScratchTime").toString();
+				String fragment_id = facetName + "_" + (i+1);
+				String type = "leaf";
+				String flag = "fragment";
+				Leaf leaf = new Leaf(url, content, fragment_id, scratchTime, type, flag);
+				leafList.add(leaf);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
+		}
+		return leafList;
+	}
+	
+	/**
+	 * 读取指定领域名、主题名、分面名下的碎片集合作为实例化主题分面树的树叶
+	 * @param className 课程名
+	 * @param topicName 主题名
+	 * @param facetName 分面名
+	 * @return 叶子
 	 */
 	public static List<Leaf> getFragmentByFacet(String className, String topicName, String facetName) {
 		List<Leaf> leafList = new ArrayList<Leaf>();
@@ -61,10 +105,10 @@ public class AssembleDAO {
 	
 	/**
 	 * 读取指定领域名、主题名、分面名下的文本碎片集合作为实例化主题分面树的树叶
-	 * @param className
-	 * @param topicName
-	 * @param facetName
-	 * @return
+	 * @param className 课程名
+	 * @param topicName 主题名
+	 * @param facetName 分面名
+	 * @return 叶子
 	 */
 	public static List<Leaf> getTextByFacet(String className, String topicName, String facetName) {
 		List<Leaf> leafList = new ArrayList<Leaf>();
@@ -101,10 +145,10 @@ public class AssembleDAO {
 	
 	/**
 	 * 读取指定领域名、主题名、分面名下的图片碎片集合作为实例化主题分面树的树叶
-	 * @param className
-	 * @param topicName
-	 * @param facetName
-	 * @return
+	 * @param className 课程名
+	 * @param topicName 主题名
+	 * @param facetName 分面名
+	 * @return 叶子
 	 */
 	public static List<Leaf> getImageByFacet(String className, String topicName, String facetName) {
 		List<Leaf> leafList = new ArrayList<Leaf>();
