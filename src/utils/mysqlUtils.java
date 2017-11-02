@@ -125,51 +125,7 @@ public class mysqlUtils
         }
         return list;
     }
-    /**
-     * 应用反射机制返回单条记录
-     * @param sql语句
-     * @param 占位符
-     * @param javabean类，这里我用的是（SmartHome_mysql.class）
-     *        javabean，我理解的是一个高度封装组件，成员为私有属性，只能
-     *        通过set/get方法赋值和取值
-     * @return 泛型
-     * @throws SQLException
-     */
-    public <T> T returnSimpleResult_Ref(String sql,List<Object>params,Class<T> tJavabean) throws Exception
-    {
-        T tResult = null;
-        int index = 1;
-        pStatement = connection.prepareStatement(sql);
-        if(params != null && !params.isEmpty())
-        {
-            for(int i = 0;i<params.size();i++)
-            {
-                pStatement.setObject(index++, params.get(i));   
-            }
-        }
-        resultset = pStatement.executeQuery(sql);
-        //封装resultset
-        ResultSetMetaData metaData = resultset.getMetaData();//获得列的信息
-        int columnLength = metaData.getColumnCount();//获得列的长度
-        while(resultset.next())//循环取值
-        {
-            tResult = tJavabean.newInstance();//通过反射机制创建一个实例
-            for(int i = 0;i<columnLength;i++)
-            {
-                String metaDateKey = metaData.getColumnName(i+1);
-                Object resultsetValue = resultset.getObject(metaDateKey);
-                if(resultsetValue == null)
-                {
-                    resultsetValue = "";
-                }
-                //获取列的属性，无论是公有。保护还是私有，都可以获取
-                Field field = tJavabean.getDeclaredField(metaDateKey);
-                field.setAccessible(true);//打开javabean的访问private权限
-                field.set(tResult, resultsetValue);//给javabean对应的字段赋值
-            }
-        }
-        return tResult;
-    }
+    
     /**
      * 通过反射机制访问数据库，并返回多条记录
      * @param sql语句
