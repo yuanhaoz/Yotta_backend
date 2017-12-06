@@ -15,6 +15,7 @@ import java.util.List;
 public class FacetComplex {
 	
 	public String firstFacet;
+	public int secondFacetCount;
 	public List<String> secondFacet;
 	
 	public String getFirstFacet() {
@@ -23,29 +24,39 @@ public class FacetComplex {
 	public void setFirstFacet(String firstFacet) {
 		this.firstFacet = firstFacet;
 	}
+	public int getSecondFacetCount() {
+		return secondFacetCount;
+	}
+	public void setSecondFacetCount(int secondFacetCount) {
+		this.secondFacetCount = secondFacetCount;
+	}
 	public List<String> getSecondFacet() {
 		return secondFacet;
 	}
 	public void setSecondFacet(List<String> secondFacet) {
 		this.secondFacet = secondFacet;
 	}
-	
+	@Override
+	public String toString() {
+		return "FacetComplex [firstFacet=" + firstFacet + ", secondFacetCount="
+				+ secondFacetCount + ", secondFacet=" + secondFacet + "]";
+	}
 	/**
 	 * @param firstFacet
+	 * @param secondFacetCount
 	 * @param secondFacet
 	 */
-	public FacetComplex(String firstFacet, List<String> secondFacet) {
+	public FacetComplex(String firstFacet, int secondFacetCount,
+			List<String> secondFacet) {
 		super();
 		this.firstFacet = firstFacet;
+		this.secondFacetCount = secondFacetCount;
 		this.secondFacet = secondFacet;
 	}
-	
 	/**
 	 * 
 	 */
 	public FacetComplex() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
-	
 }

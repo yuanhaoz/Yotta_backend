@@ -41,7 +41,93 @@ import app.success;
 public class FacetAPI {
 
 	public static void main(String[] args) {
+		getTopicFacet("数据结构", "抽象数据类型");
+//		getTopicFacet2("数据结构", "抽象数据类型");
+	}
+	
+	@GET
+	@Path("/getTopicFacet2")
+	@ApiOperation(value = "获得知识主题的所有分面信息", notes = "输入领域名/知识主题，获得知识主题的所有分面信息，知识森林VR使用（吴科炜）")
+	@ApiResponses(value = {
+			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
+			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
+	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
+	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
+	public static Response getTopicFacet2 (
+			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className,
+			@DefaultValue("抽象资料型别") @ApiParam(value = "主题名", required = true) @QueryParam("TermName") String topicName) {
 		
+		Response response = null;
+		List<FacetComplex> facetComplexList = new ArrayList<FacetComplex>();
+		List<FacetRelation> facetRelationList = FacetDAO.getFacetRelation(className, topicName, 1, 2);
+		
+		/**
+		 * 读取facet，获得知识点的一级/二级分面
+		 */
+		List<FacetSimple> firstFacetList = FacetDAO.getFacet(className, topicName, 1);
+		List<FacetSimple> secondFacetList = FacetDAO.getFacet(className, topicName, 2);
+		if (firstFacetList.size() == 0) {
+			/**
+			 * 该主题没有一级分面，无法构建主题分面树
+			 */
+			Log.log(topicName + "没有一级分面，该主题无法构建主题分面树...");
+		} else {
+			/**
+			 * 该主题有一级分面，可以构建主题分面树
+			 */
+			if (secondFacetList.size() == 0) {
+				/**
+				 * 该主题没有二级分面，只有一级分面
+				 */
+				for (int i = 0; i < firstFacetList.size(); i++) {
+					FacetSimple firstFacet = firstFacetList.get(i);
+					String firstFacetName = firstFacet.getFacetName();
+					ArrayList<String> secondFacetName = new ArrayList<String>();
+					FacetComplex facetComplex = new FacetComplex(firstFacetName, 0, secondFacetName);
+					facetComplexList.add(facetComplex);
+				}
+			} else {
+				/**
+				 * 该主题有二级分面，寻找到二级分面对应的一级分面，并将其信息挂载到一级分面下
+				 */
+				for (int i = 0; i < firstFacetList.size(); i++) {
+					FacetSimple firstFacet = firstFacetList.get(i);
+					String firstFacetName = firstFacet.getFacetName();
+					ArrayList<String> secondFacetName = new ArrayList<String>();
+					/**
+					 * 根据一级分面寻找到二级分面的信息
+					 */
+					List<FacetSimple> secondFacetListNew = FacetDAO.getChildFacet(firstFacet, facetRelationList);
+					if (secondFacetListNew.size() == 0) {
+						FacetComplex facetComplex = new FacetComplex(firstFacetName, 0, secondFacetName);
+						facetComplexList.add(facetComplex);
+					}
+				}
+				for (int i = 0; i < firstFacetList.size(); i++) {
+					FacetSimple firstFacet = firstFacetList.get(i);
+					String firstFacetName = firstFacet.getFacetName();
+					ArrayList<String> secondFacetName = new ArrayList<String>();
+					/**
+					 * 根据一级分面寻找到二级分面的信息
+					 */
+					List<FacetSimple> secondFacetListNew = FacetDAO.getChildFacet(firstFacet, facetRelationList);
+					if (secondFacetListNew.size() != 0) {
+						for (int j = 0; j < secondFacetListNew.size(); j++) {
+							/**
+							 * 遍历所有该一级分面下的二级分面，将其添加到一级分面的信息下面
+							 */
+							FacetSimple secondFacet = secondFacetListNew.get(j);
+							secondFacetName.add(secondFacet.getFacetName());
+						}
+						FacetComplex facetComplex = new FacetComplex(firstFacetName, secondFacetListNew.size(), secondFacetName);
+						facetComplexList.add(facetComplex);
+					}
+				}
+			}
+		}
+		Log.log(facetComplexList);
+		response = Response.status(200).entity(facetComplexList).build();
+		return response;
 	}
 	
 	@GET
@@ -82,7 +168,7 @@ public class FacetAPI {
 					FacetSimple firstFacet = firstFacetList.get(i);
 					String firstFacetName = firstFacet.getFacetName();
 					ArrayList<String> secondFacetName = new ArrayList<String>();
-					FacetComplex facetComplex = new FacetComplex(firstFacetName, secondFacetName);
+					FacetComplex facetComplex = new FacetComplex(firstFacetName, 0, secondFacetName);
 					facetComplexList.add(facetComplex);
 				}
 			} else {
@@ -104,12 +190,12 @@ public class FacetAPI {
 						FacetSimple secondFacet = secondFacetListNew.get(j);
 						secondFacetName.add(secondFacet.getFacetName());
 					}
-					FacetComplex facetComplex = new FacetComplex(firstFacetName, secondFacetName);
+					FacetComplex facetComplex = new FacetComplex(firstFacetName, secondFacetListNew.size(), secondFacetName);
 					facetComplexList.add(facetComplex);
 				}
 			}
 		}
-		
+		Log.log(facetComplexList);
 		response = Response.status(200).entity(facetComplexList).build();
 		return response;
 	}

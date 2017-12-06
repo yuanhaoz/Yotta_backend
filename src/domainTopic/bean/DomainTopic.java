@@ -40,7 +40,12 @@ public class DomainTopic {
 		this.termUrl = termUrl;
 		this.termLayer = termLayer;
 	}
-	
-	
+	/**
+	 * 
+	 */
+	public DomainTopic() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 	
 }
