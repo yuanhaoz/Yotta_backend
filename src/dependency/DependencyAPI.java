@@ -510,7 +510,7 @@ public class DependencyAPI {
 		if (gexfFile.exists()) {
 			// 第二次之后直接调用本地gexf文件的内容，返回给前台
 			try {
-				String gexfContent = FileUtils.readFileToString(gexfFile);
+				String gexfContent = FileUtils.readFileToString(gexfFile, "UTF-8");
 				response = Response.status(200).entity(new success(gexfContent)).build();
 			} catch (IOException e1) {
 				response = Response.status(401).entity(new error("认知关系生成失败~" + e1)).build();
