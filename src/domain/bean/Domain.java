@@ -30,6 +30,13 @@ public class Domain {
 		this.classID = classID;
 		this.className = className;
 	}
+	/**
+	 * 
+	 */
+	public Domain() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 	
 	
 
