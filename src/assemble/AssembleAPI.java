@@ -28,6 +28,7 @@ import assemble.bean.BranchSimple;
 import assemble.bean.Leaf;
 import assemble.bean.Tree;
 import domainTopic.DomainTopicOldDAO;
+import domainTopic.bean.DomainTopic;
 
 /**  
  * 碎片装配
@@ -36,6 +37,24 @@ import domainTopic.DomainTopicOldDAO;
 @Path("/AssembleAPI")
 @Api(value = "AssembleAPI")
 public class AssembleAPI {
+	
+	@GET
+	@Path("/getTreeByDomain")
+	@ApiOperation(value = "输入领域名，获得实例化主题分面树的数据", notes = "输入领域名，获得实例化主题分面树的数据，碎片包含文本和图片")
+	@ApiResponses(value = {
+			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
+			@ApiResponse(code = 402, message = "MySql数据库  查询成功，不存在该实例化主题分面树"),
+			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
+	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
+	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
+	public static Response getTreeByDomain (
+			@DefaultValue("数据结构") @ApiParam(value = "领域名", required = true) @QueryParam("ClassName") String className) {
+		
+		List<DomainTopic> domainTopics = DomainTopicOldDAO.getDomainTopics(className);
+		String topicName = domainTopics.get(0).getTermName();
+		System.out.println(topicName);
+		return getTreeByTopicForFragment(className, topicName);
+	}	
 
 	@GET
 	@Path("/getTreeByTopicForFragmentPure")

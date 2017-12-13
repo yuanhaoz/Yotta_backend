@@ -40,6 +40,17 @@ public class DomainTopic {
 		this.termUrl = termUrl;
 		this.termLayer = termLayer;
 	}
+	
+	/**
+	 * @param termName
+	 * @param termUrl
+	 * @param termLayer
+	 */
+	public DomainTopic(String termName, String termUrl) {
+		super();
+		this.termName = termName;
+		this.termUrl = termUrl;
+	}
 	/**
 	 * 
 	 */

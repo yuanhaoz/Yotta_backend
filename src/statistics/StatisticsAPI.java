@@ -39,10 +39,128 @@ import app.error;
 public class StatisticsAPI {
 
 	public static void main(String[] args) {
+		getDomainInfoForWKW();
 //		getDomainInfo();
 //		getDomainInfoBySubject("计算机科学");
 //		getTopicInfoByDomain("Java");
-		getTopicDetail("Java", "升阳专业认证");
+//		getTopicDetail("Java", "升阳专业认证");
+	}
+	
+	@GET
+	@Path("/getDomainInfoForWKW")
+	@ApiOperation(value = "获得所有领域信息", notes = "根据主题、主题关系、分面、分面关系、碎片等五个维度，获得所有领域信息")
+	@ApiResponses(value = {
+			@ApiResponse(code = 401, message = "MySql数据库  查询失败"),
+			@ApiResponse(code = 200, message = "MySql数据库  查询成功", response = String.class) })
+	@Consumes("application/x-www-form-urlencoded" + ";charset=" + "UTF-8")
+	@Produces(MediaType.APPLICATION_JSON + ";charset=" + "UTF-8")
+	public static Response getDomainInfoForWKW() {
+		Response response = null;
+		DomainStatistics domainStatistics = new DomainStatistics();
+		List<String> domainList = new ArrayList<String>();
+		List<Integer> topicList = new ArrayList<Integer>();
+		List<Integer> topicRelationList = new ArrayList<Integer>();
+		List<Integer> facetList = new ArrayList<Integer>();
+		List<Integer> facetRelationList = new ArrayList<Integer>();
+		List<Integer> fragmentList = new ArrayList<Integer>();
+		List<Integer> dependencyList = new ArrayList<Integer>();
+		/**
+		 * 读取domain，得到所有领域名
+		 */
+		mysqlUtils mysql = new mysqlUtils();
+		List<Object> params = new ArrayList<Object>();
+		String sqlDomain = "select ClassName from " + Config.DOMAIN_TABLE;
+		String sqlTopic = "SELECT d.ClassName, Count(dt.TermID) AS dtc FROM " + Config.DOMAIN_TABLE + " AS d LEFT JOIN " + Config.DOMAIN_TOPIC_TABLE + " AS dt ON d.ClassName = dt.ClassName GROUP BY d.ClassName ORDER BY d.ClassID ASC";
+		String sqlTopicRelation = "SELECT d.ClassName, Count(dtr.Parent) AS dtrc FROM " + Config.DOMAIN_TABLE + " AS d LEFT JOIN " + Config.DOMAIN_TOPIC_RELATION_TABLE + " AS dtr ON d.ClassName = dtr.ClassName GROUP BY d.ClassName ORDER BY d.ClassID ASC";
+		String sqlFacet = "SELECT d.ClassName, Count(f.TermID) AS fc FROM " + Config.DOMAIN_TABLE + " AS d LEFT JOIN " + Config.FACET_TABLE + " AS f ON d.ClassName = f.ClassName GROUP BY d.ClassName ORDER BY d.ClassID ASC";
+		String sqlFacetRelation = "SELECT d.ClassName, Count(fr.ChildFacet) AS frc FROM " + Config.DOMAIN_TABLE + " AS d LEFT JOIN " + Config.FACET_RELATION_TABLE + " AS fr ON d.ClassName = fr.ClassName GROUP BY d.ClassName ORDER BY d.ClassID ASC";
+		String sqlFragment = "SELECT d.ClassName, Count(af.FragmentID) AS afc FROM " + Config.DOMAIN_TABLE + " AS d LEFT JOIN " + Config.ASSEMBLE_FRAGMENT_TABLE + " AS af ON d.ClassName = af.ClassName GROUP BY d.ClassName ORDER BY d.ClassID ASC";
+		String sqlDepenency = "SELECT d.ClassName, Count(dp.StartID) AS dpc FROM " + Config.DOMAIN_TABLE + " AS d LEFT JOIN " + Config.DEPENDENCY + " AS dp ON d.ClassName = dp.ClassName GROUP BY d.ClassName ORDER BY d.ClassID ASC";
+		try {
+			// 领域
+			List<Map<String, Object>> resultDomain = mysql.returnMultipleResult(sqlDomain, params);
+			Log.log(resultDomain);
+			domainList.add(resultDomain.size() + "");
+			for (int i = 0; i < resultDomain.size(); i++) {
+				domainList.add(resultDomain.get(i).get("ClassName").toString());
+			}
+			Log.log(domainList);
+			// 每个领域的主题数量
+			List<Map<String, Object>> resultTopic = mysql.returnMultipleResult(sqlTopic, params);
+			Log.log(resultTopic);
+			int topicSum = 0;
+			for (int i = 0; i < resultTopic.size(); i++) {
+				topicSum += Integer.parseInt(resultTopic.get(i).get("dtc").toString());
+				topicList.add(Integer.parseInt(resultTopic.get(i).get("dtc").toString()));
+			}
+			topicList.add(0, topicSum); // 第一个数字为所有领域主题数量的和，下面的类似
+			Log.log(topicList);
+			// 每个领域的主题上下位关系数量
+			List<Map<String, Object>> resultTopicRelation = mysql.returnMultipleResult(sqlTopicRelation, params);
+			Log.log(resultTopicRelation);
+			int topicRelationSum = 0;
+			for (int i = 0; i < resultTopicRelation.size(); i++) {
+				topicRelationSum += Integer.parseInt(resultTopicRelation.get(i).get("dtrc").toString());
+				topicRelationList.add(Integer.parseInt(resultTopicRelation.get(i).get("dtrc").toString()));
+			}
+			topicRelationList.add(0, topicRelationSum);
+			Log.log(topicRelationList);
+			// 每个领域的分面数量
+			List<Map<String, Object>> resultFacet = mysql.returnMultipleResult(sqlFacet, params);
+			Log.log(resultFacet);
+			int facetSum = 0;
+			for (int i = 0; i < resultFacet.size(); i++) {
+				facetSum += Integer.parseInt(resultFacet.get(i).get("fc").toString());
+				facetList.add(Integer.parseInt(resultFacet.get(i).get("fc").toString()));
+			}
+			facetList.add(0, facetSum);
+			Log.log(facetList);
+			// 每个领域的分面关系数量
+			List<Map<String, Object>> resultFacetRelation = mysql.returnMultipleResult(sqlFacetRelation, params);
+			Log.log(resultFacetRelation);
+			int facetRelationSum = 0;
+			for (int i = 0; i < resultFacetRelation.size(); i++) {
+				facetRelationSum += Integer.parseInt(resultFacetRelation.get(i).get("frc").toString());
+				facetRelationList.add(Integer.parseInt(resultFacetRelation.get(i).get("frc").toString()));
+			}
+			facetRelationList.add(0, facetRelationSum);
+			Log.log(facetRelationList);
+			// 每个领域的碎片数量
+			List<Map<String, Object>> resultFragment = mysql.returnMultipleResult(sqlFragment, params);
+			Log.log(resultFragment);
+			int fragmentSum = 0;
+			for (int i = 0; i < resultFragment.size(); i++) {
+				fragmentSum += Integer.parseInt(resultFragment.get(i).get("afc").toString());
+				fragmentList.add(Integer.parseInt(resultFragment.get(i).get("afc").toString()));
+			}
+			fragmentList.add(0, fragmentSum);
+			Log.log(fragmentList);
+			// 每个领域的碎片数量
+			List<Map<String, Object>> resultDependency = mysql.returnMultipleResult(sqlDepenency, params);
+			Log.log(resultDependency);
+			int DependencySum = 0;
+			for (int i = 0; i < resultDependency.size(); i++) {
+				DependencySum += Integer.parseInt(resultDependency.get(i).get("dpc").toString());
+				dependencyList.add(Integer.parseInt(resultDependency.get(i).get("dpc").toString()));
+			}
+			dependencyList.add(0, DependencySum);
+			Log.log(dependencyList);
+			// 设置返回对象
+			domainStatistics.setDomainList(domainList);
+			domainStatistics.setTopicList(topicList);
+			domainStatistics.setTopicRelationList(topicRelationList);
+			domainStatistics.setFacetList(facetList);
+			domainStatistics.setFacetRelationList(facetRelationList);
+			domainStatistics.setFragmentList(fragmentList);
+			domainStatistics.setDependencyList(dependencyList);
+			response = Response.status(200).entity(domainStatistics).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = Response.status(401).entity(new error(e.toString())).build();
+		} finally {
+			mysql.closeconnection();
+		}
+		return response;
 	}
 	
 	@GET

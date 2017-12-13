@@ -107,8 +107,7 @@ public class DomainTopicOldDAO {
 				Map<String, Object> map = results.get(i);
 				String topicName = map.get("TermName").toString();
 				String topicUrl = map.get("TermUrl").toString();
-				int topicLayer = Integer.parseInt(map.get("TermLayer").toString());
-				DomainTopic domainTopic = new DomainTopic(topicName, topicUrl, topicLayer);
+				DomainTopic domainTopic = new DomainTopic(topicName, topicUrl);
 				domainTopicList.add(domainTopic);
 			}
 		} catch (Exception e) {
