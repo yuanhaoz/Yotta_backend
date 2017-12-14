@@ -70,6 +70,7 @@ public class Config {
 	 * 认知关系算法参数：gephi-tookit
 	 */
 	public static int FILTERDEGREE = 2;
-	public static String GEXFPATH = "F:\\gexfpath";
+//	public static String GEXFPATH = "F:\\gexfpath";
+	public static String GEXFPATH = "C:\\gexfpath";
 	
 }
