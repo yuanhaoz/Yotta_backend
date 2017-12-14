@@ -34,6 +34,10 @@ public class Config {
 	public static String IP1="http://yotta.xjtushilei.com:888"; // 跨域访问控制：域名+apache端口
 	public static String IP2="http://yotta.xjtushilei.com:9218/Yotta"; // 阿里云服务器：域名+http端口
 	
+//	public static String MYSQL_URL = "jdbc:mysql://localhost:9220/yotta?user=root&password=root&characterEncoding=UTF8"; // 阿里云服务器：域名+http端口
+//	public static String IP1="http://yotta.xjtushilei.com:888"; // 跨域访问控制：域名+apache端口
+//	public static String IP2="http://yotta.xjtushilei.com:9218/Yotta"; // 阿里云服务器：域名+http端口
+	
 	/**
 	 * 数据库  配置
 	 * @author 郑元浩
